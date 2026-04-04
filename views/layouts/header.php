@@ -42,10 +42,14 @@ $_nav = [
     ['icon'=>'users',           'label'=>'Data Siswa',  'href'=>'/students'],
     ['icon'=>'user-check',      'label'=>'Data Guru',   'href'=>'/teachers'],
     ['icon'=>'building-2',      'label'=>'Data Kelas',  'href'=>'/classes'],
+    ['icon'=>'book-open',       'label'=>'Mata Pelajaran','href'=>'/subjects'],
+    ['icon'=>'shield',          'label'=>'Manajemen User','href'=>'/users'],
     ['s'=>'Akademik'],
     ['icon'=>'bar-chart-3',     'label'=>'Nilai',       'href'=>'/grades'],
     ['icon'=>'clipboard-list',  'label'=>'Tugas',       'href'=>'/assignments'],
     ['icon'=>'calendar-check',  'label'=>'Absensi',     'href'=>'/attendance'],
+    ['s'=>'Akun'],
+    ['icon'=>'user',            'label'=>'Profil Saya', 'href'=>'/profile'],
   ],
   'guru'=>[
     ['icon'=>'layout-dashboard','label'=>'Dashboard',   'href'=>'/dashboard/guru','s'=>null],
@@ -56,6 +60,8 @@ $_nav = [
     ['icon'=>'clipboard-list',  'label'=>'Tugas',       'href'=>'/assignments'],
     ['icon'=>'file-plus',       'label'=>'Buat Tugas',  'href'=>'/assignments/create'],
     ['icon'=>'calendar-check',  'label'=>'Absensi',     'href'=>'/attendance'],
+    ['s'=>'Akun'],
+    ['icon'=>'user',            'label'=>'Profil Saya', 'href'=>'/profile'],
   ],
   'murid'=>[
     ['icon'=>'layout-dashboard','label'=>'Dashboard',  'href'=>'/dashboard/murid','s'=>null],
@@ -63,6 +69,8 @@ $_nav = [
     ['icon'=>'star',            'label'=>'Nilai Saya', 'href'=>'/my-grades'],
     ['icon'=>'clipboard-list',  'label'=>'Tugas',      'href'=>'/assignments'],
     ['icon'=>'calendar-check',  'label'=>'Absensi',    'href'=>'/attendance'],
+    ['s'=>'Akun'],
+    ['icon'=>'user',            'label'=>'Profil Saya','href'=>'/profile'],
   ],
 ];
 $_items = $_nav[$_role] ?? [];

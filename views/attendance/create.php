@@ -5,13 +5,14 @@
     <a href="<?= url('/attendance') ?>" class="btn btn-secondary btn-sm btn-icon"><i data-lucide="arrow-left" class="w-4 h-4"></i></a>
     <div>
       <h2 class="font-display font-bold text-slate-900 dark:text-white text-xl">Buat Sesi Absensi</h2>
-      <p class="text-sm text-slate-400 dark:text-dark-text mt-0.5">Isi detail sesi, semua siswa akan otomatis ditandai hadir</p>
+      <p class="text-sm text-slate-400 dark:text-dark-text mt-0.5">Sesi baru untuk hari ini atau tanggal tertentu</p>
     </div>
   </div>
 
   <div class="card">
     <form method="POST" action="<?= url('/attendance') ?>">
       <?= csrf_field() ?>
+      <input type="hidden" name="teacher_id" value="<?= $teacher['id'] ?>">
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="form-group">
@@ -33,22 +34,19 @@
 
         <div class="form-group">
           <label class="form-label">Tanggal *</label>
-          <input type="date" name="tanggal" class="form-input" required value="<?= date('Y-m-d') ?>">
+          <input type="date" name="tanggal" value="<?= date('Y-m-d') ?>" class="form-input" required max="<?= date('Y-m-d') ?>">
+          <p class="form-hint">Default hari ini, bisa diubah ke tanggal lampau</p>
         </div>
 
         <div class="form-group">
-          <label class="form-label">Keterangan <span class="text-slate-400 normal-case font-normal">(opsional)</span></label>
-          <input type="text" name="keterangan" class="form-input" placeholder="cth: Pertemuan ke-5">
+          <label class="form-label">Keterangan <span class="font-normal text-slate-400 normal-case">(Opsional)</span></label>
+          <input type="text" name="keterangan" class="form-input" placeholder="cth: Pertemuan ke-3">
         </div>
       </div>
 
-      <!-- Info box -->
-      <div class="flex items-start gap-3 p-4 bg-brand-50 dark:bg-brand-900/20 border border-brand-100 dark:border-brand-900/50 rounded-2xl mb-4">
+      <div class="flex items-start gap-3 p-4 bg-brand-50 dark:bg-brand-900/20 rounded-2xl border border-brand-100 dark:border-brand-900/50 mb-5">
         <i data-lucide="info" class="w-4 h-4 text-brand-600 dark:text-brand-400 mt-0.5 shrink-0"></i>
-        <div>
-          <p class="text-sm font-semibold text-brand-800 dark:text-brand-300">Semua siswa otomatis ditandai Hadir</p>
-          <p class="text-xs text-brand-600 dark:text-brand-500 mt-0.5">Setelah sesi dibuat, kamu bisa mengubah status siswa yang tidak hadir di halaman pengisian absensi.</p>
-        </div>
+        <p class="text-sm text-brand-800 dark:text-brand-300">Semua siswa akan otomatis diisi <strong>Hadir</strong> sebagai default. Kamu bisa mengubah status individual di halaman berikutnya.</p>
       </div>
 
       <div class="flex gap-3 pt-4 border-t border-slate-100 dark:border-dark-border">
@@ -69,7 +67,7 @@ async function loadSubjects(classId) {
   try {
     const r = await fetch(`<?= url('/assignments/subjects') ?>?class_id=${classId}`);
     const data = await r.json();
-    sel.innerHTML = '<option value="">— Pilih Mata Pelajaran —</option>' +
+    sel.innerHTML = '<option value="">— Pilih Mata Pelajaran —</option>' + 
       data.map(s => `<option value="${s.id}">${s.nama_mapel}</option>`).join('');
   } catch { sel.innerHTML = '<option value="">Gagal memuat</option>'; }
 }

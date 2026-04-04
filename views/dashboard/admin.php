@@ -18,14 +18,15 @@
   </div>
 
   <!-- Stats grid -->
-  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
     <?php
     $cards = [
-      ['Siswa',       $stats['total_siswa'],  'users',       'text-brand-600 dark:text-brand-400',   'bg-brand-50 dark:bg-brand-900/30'],
-      ['Guru',        $stats['total_guru'],   'user-check',  'text-violet-600 dark:text-violet-400',  'bg-violet-50 dark:bg-violet-900/30'],
-      ['Kelas',       $stats['total_kelas'],  'building-2',  'text-emerald-600 dark:text-emerald-400','bg-emerald-50 dark:bg-emerald-900/30'],
-      ['Mata Pelajaran',$stats['total_mapel'],'book-open',   'text-amber-600 dark:text-amber-400',   'bg-amber-50 dark:bg-amber-900/30'],
-      ['Rata Nilai',  $stats['rata_nilai'],   'bar-chart-3', 'text-rose-600 dark:text-rose-400',     'bg-rose-50 dark:bg-rose-900/30'],
+      ['Siswa',        $stats['total_siswa'],  'users',          'text-brand-600 dark:text-brand-400',   'bg-brand-50 dark:bg-brand-900/30'],
+      ['Guru',         $stats['total_guru'],   'user-check',     'text-violet-600 dark:text-violet-400', 'bg-violet-50 dark:bg-violet-900/30'],
+      ['Kelas',        $stats['total_kelas'],  'building-2',     'text-emerald-600 dark:text-emerald-400','bg-emerald-50 dark:bg-emerald-900/30'],
+      ['Mata Pelajaran',$stats['total_mapel'], 'book-open',      'text-amber-600 dark:text-amber-400',   'bg-amber-50 dark:bg-amber-900/30'],
+      ['Rata Nilai',   $stats['rata_nilai'],   'bar-chart-3',    'text-rose-600 dark:text-rose-400',     'bg-rose-50 dark:bg-rose-900/30'],
+      ['Sesi Absensi', $stats['total_sesi'],   'calendar-check', 'text-cyan-600 dark:text-cyan-400',     'bg-cyan-50 dark:bg-cyan-900/30'],
     ];
     foreach ($cards as $i => [$lbl,$val,$icon,$col,$bg]):
     ?>
@@ -139,4 +140,37 @@
     </div>
   </div>
 </div>
+  <!-- Recent Absensi Sessions -->
+  <?php if (!empty($recentSessions)): ?>
+  <div class="card">
+    <div class="flex items-center justify-between mb-5">
+      <div>
+        <h3 class="font-display font-bold text-slate-900 dark:text-white text-lg">Absensi Terkini</h3>
+        <p class="text-xs text-slate-400 dark:text-dark-text mt-0.5">5 sesi terakhir</p>
+      </div>
+      <a href="<?= url('/attendance') ?>" class="btn btn-secondary btn-sm">Lihat Semua</a>
+    </div>
+    <div class="space-y-2">
+      <?php foreach ($recentSessions as $s): ?>
+      <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-dark-card rounded-xl hover:bg-slate-100 dark:hover:bg-dark-hover transition-colors">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center shrink-0">
+            <i data-lucide="calendar-check" class="w-4 h-4 text-cyan-600 dark:text-cyan-400"></i>
+          </div>
+          <div>
+            <p class="font-semibold text-slate-800 dark:text-slate-100 text-sm"><?= e($s['nama_kelas']) ?> — <?= e($s['nama_mapel']) ?></p>
+            <p class="text-xs text-slate-400 dark:text-dark-text"><?= formatDate($s['tanggal'], 'd M Y') ?> · <?= e($s['guru_name']) ?></p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 text-xs shrink-0">
+          <span class="text-emerald-600 dark:text-emerald-400 font-bold"><?= $s['hadir']??0 ?>H</span>
+          <span class="text-red-500 font-bold"><?= $s['alpha']??0 ?>A</span>
+          <a href="<?= url('/attendance/'.$s['id']) ?>" class="btn btn-secondary btn-sm">Detail</a>
+        </div>
+      </div>
+      <?php endforeach; ?>
+    </div>
+  </div>
+  <?php endif; ?>
+
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

@@ -65,7 +65,7 @@
           <i data-lucide="mail" class="w-4 h-4 text-slate-600 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
           <input type="email" name="email" value="<?= old('email') ?>" required
                  placeholder="email@sekolah.sch.id"
-                 class="w-full pl-10 pr-4 py-3 rounded-xl bg-white/8 border border-white/10 text-white text-sm
+                 class="w-full pl-10 pr-4 py-3 rounded-xl bg-white/8 border border-white/10 text-slate-500 text-sm
                         placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500/50
                         focus:bg-white/12 transition-all">
         </div>
@@ -77,7 +77,7 @@
           <i data-lucide="lock" class="w-4 h-4 text-slate-600 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
           <input type="password" name="password" id="pwd" required
                  placeholder="••••••••"
-                 class="w-full pl-10 pr-12 py-3 rounded-xl bg-white/8 border border-white/10 text-white text-sm
+                 class="w-full pl-10 pr-12 py-3 rounded-xl bg-white/8 border border-white/10 text-slate-500 text-sm
                         placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500/50
                         focus:bg-white/12 transition-all">
           <button type="button" id="togglePwd" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-400 transition-colors">

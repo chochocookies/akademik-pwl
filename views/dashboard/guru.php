@@ -37,6 +37,22 @@
     <?php endforeach; ?>
   </div>
 
+  <!-- Quick Actions -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+    <?php $qa = [
+      ['/grades',           'bar-chart-3',    'Input Nilai',    'bg-brand-50 dark:bg-brand-900/20 text-brand-700 dark:text-brand-400 hover:bg-brand-100 dark:hover:bg-brand-900/30'],
+      ['/attendance/create','calendar-plus',  'Absensi Baru',   'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-700 dark:text-cyan-400 hover:bg-cyan-100 dark:hover:bg-cyan-900/30'],
+      ['/assignments/create','file-plus',     'Buat Tugas',     'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30'],
+      ['/profile',          'user',           'Profil Saya',    'bg-slate-50 dark:bg-dark-card text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-dark-hover'],
+    ]; ?>
+    <?php foreach ($qa as [$href,$icon,$label,$cls]): ?>
+    <a href="<?= url($href) ?>" class="flex flex-col items-center gap-2 p-4 <?= $cls ?> rounded-2xl transition-all duration-200 text-center group">
+      <i data-lucide="<?= $icon ?>" class="w-5 h-5"></i>
+      <span class="text-xs font-semibold"><?= $label ?></span>
+    </a>
+    <?php endforeach; ?>
+  </div>
+
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
     <!-- Kelas Saya -->

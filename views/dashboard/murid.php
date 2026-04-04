@@ -38,6 +38,21 @@
     <?php endforeach; ?>
   </div>
 
+  <!-- Quick links -->
+  <div class="grid grid-cols-3 gap-3">
+    <?php $ql = [
+      ['/my-grades',   'star',           'Lihat Nilai',  'bg-brand-50 dark:bg-brand-900/20 text-brand-700 dark:text-brand-400 hover:bg-brand-100'],
+      ['/attendance',  'calendar-check', 'Absensi Saya', 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-700 dark:text-cyan-400 hover:bg-cyan-100'],
+      ['/profile',     'user',           'Profil Saya',  'bg-slate-50 dark:bg-dark-card text-slate-700 dark:text-slate-300 hover:bg-slate-100'],
+    ]; ?>
+    <?php foreach ($ql as [$href,$icon,$label,$cls]): ?>
+    <a href="<?= url($href) ?>" class="flex flex-col items-center gap-2 p-4 <?= $cls ?> rounded-2xl transition-all duration-200 text-center">
+      <i data-lucide="<?= $icon ?>" class="w-5 h-5"></i>
+      <span class="text-xs font-semibold"><?= $label ?></span>
+    </a>
+    <?php endforeach; ?>
+  </div>
+
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
     <!-- Nilai -->

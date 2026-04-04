@@ -24,8 +24,12 @@ class DashboardController extends Controller {
         $recentStudents = array_slice($recentStudents, 0, 5);
 
         $classSummary = (new StudentModel())->countByClass();
+        $recentSessions = (new AttendanceSessionModel())->allWithDetails(null, null);
+        $recentSessions = array_slice($recentSessions, 0, 5);
+        $totalSessions  = count((new AttendanceSessionModel())->allWithDetails());
+        $stats['total_sesi'] = $totalSessions;
 
-        $this->view('dashboard.admin', compact('stats', 'recentStudents', 'classSummary'));
+        $this->view('dashboard.admin', compact('stats', 'recentStudents', 'classSummary', 'recentSessions'));
     }
 
     // =============================================

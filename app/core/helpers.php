@@ -221,3 +221,17 @@ function asset(string $path): string {
 function url(string $path = ''): string {
     return APP_URL . '/' . ltrim($path, '/');
 }
+
+// Indonesian day names helper
+function formatDateID(string $date, string $format = 'd M Y'): string {
+    $days = ['Sunday'=>'Minggu','Monday'=>'Senin','Tuesday'=>'Selasa',
+             'Wednesday'=>'Rabu','Thursday'=>'Kamis','Friday'=>'Jumat','Saturday'=>'Sabtu'];
+    $months = ['January'=>'Januari','February'=>'Februari','March'=>'Maret',
+               'April'=>'April','May'=>'Mei','June'=>'Juni','July'=>'Juli',
+               'August'=>'Agustus','September'=>'September','October'=>'Oktober',
+               'November'=>'November','December'=>'Desember'];
+    $result = date($format, strtotime($date));
+    $result = strtr($result, $days);
+    $result = strtr($result, $months);
+    return $result;
+}
