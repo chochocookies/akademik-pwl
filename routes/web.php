@@ -1,6 +1,12 @@
 <?php
 /** @var Router $router */
 
+// ── Landing page (guest) ──────────────────────────────────────────────────────
+$router->get('/', function() {
+    if (Auth::check()) redirect('/dashboard');
+    view('landing');
+});
+
 // ── Auth ──────────────────────────────────────────────────────────────────────
 $router->get('/login',  [AuthController::class, 'loginForm']);
 $router->post('/login', [AuthController::class, 'login']);
@@ -48,66 +54,54 @@ $router->post('/subjects/{id}/update', [SubjectController::class, 'update']);
 $router->post('/subjects/{id}/delete', [SubjectController::class, 'destroy']);
 
 // ── Grades ────────────────────────────────────────────────────────────────────
-$router->get('/grades',                  [GradeController::class, 'index']);
-$router->get('/grades/{classId}',        [GradeController::class, 'byClass']);
-$router->get('/grades/{classId}/input',  [GradeController::class, 'create']);
-$router->post('/grades',                 [GradeController::class, 'store']);
-$router->get('/my-grades',               [GradeController::class, 'myGrades']);
+$router->get('/grades',                 [GradeController::class, 'index']);
+$router->get('/grades/{classId}',       [GradeController::class, 'byClass']);
+$router->get('/grades/{classId}/input', [GradeController::class, 'create']);
+$router->post('/grades',                [GradeController::class, 'store']);
+$router->get('/my-grades',              [GradeController::class, 'myGrades']);
 
 // ── Assignments ───────────────────────────────────────────────────────────────
-$router->get('/assignments',                  [AssignmentController::class, 'index']);
-$router->get('/assignments/create',           [AssignmentController::class, 'create']);
-$router->get('/assignments/subjects',         [AssignmentController::class, 'getSubjectsByClass']);
-$router->post('/assignments',                 [AssignmentController::class, 'store']);
-$router->get('/assignments/{id}',             [AssignmentController::class, 'show']);
-$router->get('/assignments/{id}/edit',        [AssignmentController::class, 'edit']);
-$router->post('/assignments/{id}/update',     [AssignmentController::class, 'update']);
-$router->post('/assignments/{id}/delete',     [AssignmentController::class, 'destroy']);
-$router->post('/assignments/{id}/submit',     [AssignmentController::class, 'submit']);
-$router->post('/submissions/{id}/grade',      [AssignmentController::class, 'gradeSubmission']);
+$router->get('/assignments',                [AssignmentController::class, 'index']);
+$router->get('/assignments/create',         [AssignmentController::class, 'create']);
+$router->get('/assignments/subjects',       [AssignmentController::class, 'getSubjectsByClass']);
+$router->post('/assignments',               [AssignmentController::class, 'store']);
+$router->get('/assignments/{id}',           [AssignmentController::class, 'show']);
+$router->get('/assignments/{id}/edit',      [AssignmentController::class, 'edit']);
+$router->post('/assignments/{id}/update',   [AssignmentController::class, 'update']);
+$router->post('/assignments/{id}/delete',   [AssignmentController::class, 'destroy']);
+$router->post('/assignments/{id}/submit',   [AssignmentController::class, 'submit']);
+$router->post('/submissions/{id}/grade',    [AssignmentController::class, 'gradeSubmission']);
 
 // ── Attendance ────────────────────────────────────────────────────────────────
-$router->get('/attendance',                      [AttendanceController::class, 'index']);
-$router->get('/attendance/create',               [AttendanceController::class, 'create']);
-$router->get('/attendance/rekap/{classId}',      [AttendanceController::class, 'rekap']);  // before {id}!
-$router->post('/attendance',                     [AttendanceController::class, 'store']);
-$router->get('/attendance/{id}',                 [AttendanceController::class, 'show']);
-$router->get('/attendance/{id}/fill',            [AttendanceController::class, 'fill']);
-$router->post('/attendance/{id}/save',           [AttendanceController::class, 'save']);
-$router->post('/attendance/{id}/delete',         [AttendanceController::class, 'destroy']);
+$router->get('/attendance',                  [AttendanceController::class, 'index']);
+$router->get('/attendance/create',           [AttendanceController::class, 'create']);
+$router->get('/attendance/rekap/{classId}',  [AttendanceController::class, 'rekap']);
+$router->post('/attendance',                 [AttendanceController::class, 'store']);
+$router->get('/attendance/{id}',             [AttendanceController::class, 'show']);
+$router->get('/attendance/{id}/fill',        [AttendanceController::class, 'fill']);
+$router->post('/attendance/{id}/save',       [AttendanceController::class, 'save']);
+$router->post('/attendance/{id}/delete',     [AttendanceController::class, 'destroy']);
 
-// ── Profile ───────────────────────────────────────────────────────────────────
-$router->get('/profile',         [ProfileController::class, 'show']);
-$router->post('/profile/update', [ProfileController::class, 'update']);
-$router->post('/profile/password',[ProfileController::class, 'changePassword']);
-
-// ── Users (admin) ─────────────────────────────────────────────────────────────
-$router->get('/users',              [UserController::class, 'index']);
-$router->post('/users/{id}/toggle', [UserController::class, 'toggleActive']);
-$router->post('/users/{id}/delete', [UserController::class, 'destroy']);
-
-// ── Murid self-rapor shortcut ─────────────────────────────────────────────────
-$router->get('/my-rapor', function() {
+// ── Reports ───────────────────────────────────────────────────────────────────
+$router->get('/reports',                     [ReportController::class, 'index']);
+$router->get('/reports/preview/{studentId}', [ReportController::class, 'preview']);
+$router->get('/reports/pdf/{studentId}',     [ReportController::class, 'pdf']);
+$router->post('/reports/{studentId}/note',   [ReportController::class, 'saveNote']);
+$router->get('/reports/{classId}',           [ReportController::class, 'byClass']);
+$router->get('/my-rapor',                    function() {
     Middleware::murid();
     $student = (new StudentModel())->findByUserId(Auth::id());
     if (!$student) { Flash::set('error','Data siswa tidak ditemukan.'); redirect('/dashboard'); }
     redirect('/reports/preview/' . $student['id'] . '?semester=' . SEMESTER);
 });
 
-// ── Reports ───────────────────────────────────────────────────────────────────
-$router->get('/reports',                       [ReportController::class, 'index']);
-$router->get('/reports/preview/{studentId}',   [ReportController::class, 'preview']);
-$router->get('/reports/pdf/{studentId}',       [ReportController::class, 'pdf']);
-$router->post('/reports/{studentId}/note',     [ReportController::class, 'saveNote']);
-$router->get('/reports/{classId}',             [ReportController::class, 'byClass']);
-
 // ── Calendar ──────────────────────────────────────────────────────────────────
-$router->get('/calendar',                      [CalendarController::class, 'index']);
-$router->get('/calendar/schedule/{classId}',   [CalendarController::class, 'schedule']);
-$router->post('/calendar/event',               [CalendarController::class, 'storeEvent']);
-$router->post('/calendar/event/{id}/delete',   [CalendarController::class, 'destroyEvent']);
-$router->post('/calendar/schedule',            [CalendarController::class, 'storeSchedule']);
-$router->post('/calendar/schedule/{id}/delete',[CalendarController::class, 'destroySchedule']);
+$router->get('/calendar',                    [CalendarController::class, 'index']);
+$router->get('/calendar/schedule/{classId}', [CalendarController::class, 'schedule']);
+$router->post('/calendar/event',             [CalendarController::class, 'storeEvent']);
+$router->post('/calendar/event/{id}/delete', [CalendarController::class, 'destroyEvent']);
+$router->post('/calendar/schedule',              [CalendarController::class, 'storeSchedule']);
+$router->post('/calendar/schedule/{id}/delete',  [CalendarController::class, 'destroySchedule']);
 
 // ── Journals ──────────────────────────────────────────────────────────────────
 $router->get('/journals',              [JournalController::class, 'index']);
@@ -119,16 +113,61 @@ $router->post('/journals/{id}/update', [JournalController::class, 'update']);
 $router->post('/journals/{id}/delete', [JournalController::class, 'destroy']);
 
 // ── Notifications ─────────────────────────────────────────────────────────────
-$router->get('/notifications',             [NotificationController::class, 'index']);
-$router->get('/notifications/count',       [NotificationController::class, 'count']);
-$router->post('/notifications/read-all',   [NotificationController::class, 'markAllRead']);
-$router->post('/notifications/{id}/read',  [NotificationController::class, 'markRead']);
+$router->get('/notifications',            [NotificationController::class, 'index']);
+$router->get('/notifications/count',      [NotificationController::class, 'count']);
+$router->post('/notifications/read-all',  [NotificationController::class, 'markAllRead']);
+$router->post('/notifications/{id}/read', [NotificationController::class, 'markRead']);
 
 // ── Announcements ─────────────────────────────────────────────────────────────
-$router->get('/announcements',                    [AnnouncementController::class, 'index']);
-$router->get('/announcements/create',             [AnnouncementController::class, 'create']);
-$router->post('/announcements',                   [AnnouncementController::class, 'store']);
-$router->get('/announcements/{id}',               [AnnouncementController::class, 'show']);
-$router->get('/announcements/{id}/edit',          [AnnouncementController::class, 'edit']);
-$router->post('/announcements/{id}/update',       [AnnouncementController::class, 'update']);
-$router->post('/announcements/{id}/delete',       [AnnouncementController::class, 'destroy']);
+$router->get('/announcements',                [AnnouncementController::class, 'index']);
+$router->get('/announcements/create',         [AnnouncementController::class, 'create']);
+$router->post('/announcements',               [AnnouncementController::class, 'store']);
+$router->get('/announcements/{id}',           [AnnouncementController::class, 'show']);
+$router->get('/announcements/{id}/edit',      [AnnouncementController::class, 'edit']);
+$router->post('/announcements/{id}/update',   [AnnouncementController::class, 'update']);
+$router->post('/announcements/{id}/delete',   [AnnouncementController::class, 'destroy']);
+
+// ── Profile ───────────────────────────────────────────────────────────────────
+$router->get('/profile',          [ProfileController::class, 'show']);
+$router->post('/profile/update',  [ProfileController::class, 'update']);
+$router->post('/profile/password',[ProfileController::class, 'changePassword']);
+
+// ── Users (admin) ─────────────────────────────────────────────────────────────
+$router->get('/users',              [UserController::class, 'index']);
+$router->post('/users/{id}/toggle', [UserController::class, 'toggleActive']);
+$router->post('/users/{id}/delete', [UserController::class, 'destroy']);
+
+// ── Export ────────────────────────────────────────────────────────────────────
+$router->get('/export/students',              [ExportController::class, 'students']);
+$router->get('/export/grades/{classId}',      [ExportController::class, 'grades']);
+$router->get('/export/attendance/{classId}',  [ExportController::class, 'attendance']);
+$router->get('/export/rapor/{studentId}',     [ExportController::class, 'rapor']);
+
+// ── Academic Years ────────────────────────────────────────────────────────────
+$router->get('/academic-years',               [AcademicYearController::class, 'index']);
+$router->get('/academic-years/create',        [AcademicYearController::class, 'create']);
+$router->post('/academic-years',              [AcademicYearController::class, 'store']);
+$router->post('/academic-years/{id}/activate',[AcademicYearController::class, 'activate']);
+$router->post('/academic-years/{id}/delete',  [AcademicYearController::class, 'destroy']);
+
+// ── Promotions ────────────────────────────────────────────────────────────────
+$router->get('/promotions',                   [PromotionController::class, 'index']);
+$router->get('/promotions/{classId}',         [PromotionController::class, 'byClass']);
+$router->post('/promotions/{classId}/process',[PromotionController::class, 'process']);
+
+// ── Discussions ───────────────────────────────────────────────────────────────
+$router->get('/discussions',                  [DiscussionController::class, 'index']);
+$router->get('/discussions/create',           [DiscussionController::class, 'create']);
+$router->post('/discussions',                 [DiscussionController::class, 'store']);
+$router->get('/discussions/{id}',             [DiscussionController::class, 'show']);
+$router->post('/discussions/{id}/reply',      [DiscussionController::class, 'reply']);
+$router->post('/discussions/{id}/delete',     [DiscussionController::class, 'destroy']);
+$router->post('/discussions/reply/{id}/delete',[DiscussionController::class, 'deleteReply']);
+
+// ── SPP ───────────────────────────────────────────────────────────────────────
+$router->get('/spp/class/{classId}', [SppController::class, 'byClass']);
+$router->get('/spp',                          [SppController::class, 'index']);
+$router->get('/spp/student/{studentId}',      [SppController::class, 'student']);
+$router->post('/spp/pay',                     [SppController::class, 'pay']);
+$router->get('/spp/settings',                 [SppController::class, 'settings']);
+$router->post('/spp/settings',                [SppController::class, 'saveSettings']);

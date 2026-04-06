@@ -6,7 +6,6 @@
   <div class="hero-admin rounded-3xl p-6 text-white relative overflow-hidden">
     <div class="absolute inset-0 opacity-10" style="background:url('data:image/svg+xml,%3Csvg width=60 height=60 viewBox=0 0 60 60 xmlns=http://www.w3.org/2000/svg%3E%3Cg fill=none fill-rule=evenodd%3E%3Cg fill=%23ffffff fill-opacity=1%3E%3Cpath d=M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z/%3E%3C/g%3E%3C/g%3E%3C/svg%3E') repeat"></div>
     <div class="absolute right-6 top-1/2 -translate-y-1/2 w-32 h-32 bg-white/10 rounded-3xl rotate-12 hidden md:block"></div>
-    <div class="absolute right-20 top-4 w-16 h-16 bg-white/10 rounded-2xl -rotate-6 hidden md:block"></div>
     <div class="relative">
       <p class="text-violet-200 text-sm font-medium mb-1">Selamat datang kembali 👋</p>
       <h2 class="font-display font-bold text-3xl text-white tracking-tight"><?= e(Auth::user()['name']) ?></h2>
@@ -43,9 +42,8 @@
     <?php endforeach; ?>
   </div>
 
+  <!-- Distribusi + Quick Actions -->
   <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-
-    <!-- Distribusi Siswa -->
     <div class="card lg:col-span-3">
       <div class="flex items-center justify-between mb-6">
         <div>
@@ -76,18 +74,16 @@
         <?php if (empty($classSummary)): ?><p class="text-slate-400 text-sm text-center py-4">Belum ada kelas</p><?php endif; ?>
       </div>
     </div>
-
-    <!-- Quick Actions -->
     <div class="card lg:col-span-2">
       <h3 class="font-display font-bold text-slate-900 dark:text-white text-lg mb-5">Aksi Cepat</h3>
       <div class="space-y-2">
         <?php
         $actions = [
-          ['/students/create','user-plus',   'Tambah Siswa Baru',  'bg-brand-50 dark:bg-brand-900/20 hover:bg-brand-100 dark:hover:bg-brand-900/30 text-brand-700 dark:text-brand-400'],
-          ['/teachers/create','user-check',  'Tambah Guru Baru',   'bg-violet-50 dark:bg-violet-900/20 hover:bg-violet-100 dark:hover:bg-violet-900/30 text-violet-700 dark:text-violet-400'],
-          ['/classes/create', 'building-2',  'Buat Kelas Baru',    'bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'],
-          ['/grades',         'bar-chart-3', 'Monitor Nilai',      'bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/30 text-amber-700 dark:text-amber-400'],
-          ['/assignments',    'clipboard-list','Lihat Semua Tugas','bg-rose-50 dark:bg-rose-900/20 hover:bg-rose-100 dark:hover:bg-rose-900/30 text-rose-700 dark:text-rose-400'],
+          ['/students/create','user-plus',   'Tambah Siswa Baru',   'bg-brand-50 dark:bg-brand-900/20 hover:bg-brand-100 dark:hover:bg-brand-900/30 text-brand-700 dark:text-brand-400'],
+          ['/teachers/create','user-check',  'Tambah Guru Baru',    'bg-violet-50 dark:bg-violet-900/20 hover:bg-violet-100 dark:hover:bg-violet-900/30 text-violet-700 dark:text-violet-400'],
+          ['/classes/create', 'building-2',  'Buat Kelas Baru',     'bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'],
+          ['/announcements/create','megaphone','Buat Pengumuman',   'bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/30 text-amber-700 dark:text-amber-400'],
+          ['/reports',        'file-text',   'Rapor Digital',       'bg-rose-50 dark:bg-rose-900/20 hover:bg-rose-100 dark:hover:bg-rose-900/30 text-rose-700 dark:text-rose-400'],
         ];
         foreach ($actions as [$href,$icon,$label,$cls]):
         ?>
@@ -101,46 +97,7 @@
     </div>
   </div>
 
-  <!-- Recent Students -->
-  <div class="card">
-    <div class="flex items-center justify-between mb-5">
-      <div>
-        <h3 class="font-display font-bold text-slate-900 dark:text-white text-lg">Siswa Terdaftar</h3>
-        <p class="text-xs text-slate-400 dark:text-dark-text mt-0.5">5 siswa terakhir</p>
-      </div>
-      <a href="<?= url('/students') ?>" class="btn btn-secondary btn-sm">Lihat Semua</a>
-    </div>
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead><tr><th>Siswa</th><th>NIS</th><th>Kelas</th><th>Gender</th><th>Status</th><th></th></tr></thead>
-        <tbody>
-        <?php foreach ($recentStudents as $s): ?>
-        <tr>
-          <td>
-            <div class="flex items-center gap-3">
-              <div class="avatar avatar-sm avatar-blue"><?= strtoupper(substr($s['name'],0,1)) ?></div>
-              <div>
-                <p class="font-semibold text-slate-800 dark:text-slate-100 text-sm"><?= e($s['name']) ?></p>
-                <p class="text-xs text-slate-400 dark:text-dark-text"><?= e($s['email']) ?></p>
-              </div>
-            </div>
-          </td>
-          <td><span class="font-mono text-xs bg-slate-100 dark:bg-dark-muted px-2 py-1 rounded-lg"><?= e($s['nis']) ?></span></td>
-          <td><?= $s['nama_kelas'] ? '<span class="badge badge-blue">'.e($s['nama_kelas']).'</span>' : '<span class="text-slate-400 text-xs">—</span>' ?></td>
-          <td><?= $s['gender']==='L' ? '<span class="badge badge-blue">L</span>' : '<span class="badge badge-purple">P</span>' ?></td>
-          <td><?= $s['is_active'] ? '<span class="badge badge-green">Aktif</span>' : '<span class="badge badge-red">Nonaktif</span>' ?></td>
-          <td><a href="<?= url('/students/'.$s['id']) ?>" class="btn btn-secondary btn-sm">Detail</a></td>
-        </tr>
-        <?php endforeach; ?>
-        <?php if (empty($recentStudents)): ?>
-        <tr><td colspan="6"><div class="empty-state"><i data-lucide="users" class="empty-icon"></i><p class="empty-title">Belum ada siswa</p></div></td></tr>
-        <?php endif; ?>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-  <!-- Announcements + Calendar row -->
+  <!-- Pengumuman + Calendar -->
   <?php if (!empty($announcements) || !empty($upcomingEvents)): ?>
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <?php if (!empty($announcements)): ?>
@@ -177,8 +134,8 @@
           $daysAway = (int)ceil((strtotime($ev['tanggal_mulai'])-time())/86400);
         ?>
         <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-dark-card rounded-xl">
-          <div class="w-10 h-10 rounded-xl <?= $evColors[$ev['tipe']]??$evColors['lainnya'] ?> flex flex-col items-center justify-center shrink-0 text-center leading-none">
-            <span class="text-xs font-bold"><?= date('d',strtotime($ev['tanggal_mulai'])) ?></span>
+          <div class="w-12 h-12 rounded-xl <?= $evColors[$ev['tipe']]??$evColors['lainnya'] ?> flex flex-col items-center justify-center shrink-0 leading-none">
+            <span class="text-sm font-bold"><?= date('d',strtotime($ev['tanggal_mulai'])) ?></span>
             <span class="text-2xs"><?= date('M',strtotime($ev['tanggal_mulai'])) ?></span>
           </div>
           <div class="flex-1 min-w-0">
@@ -193,7 +150,7 @@
   </div>
   <?php endif; ?>
 
-  <!-- Recent Absensi Sessions -->
+  <!-- Absensi Terkini -->
   <?php if (!empty($recentSessions)): ?>
   <div class="card">
     <div class="flex items-center justify-between mb-5">
@@ -216,8 +173,8 @@
           </div>
         </div>
         <div class="flex items-center gap-3 text-xs shrink-0">
-          <span class="text-emerald-600 dark:text-emerald-400 font-bold"><?= $s['hadir']??0 ?>H</span>
-          <span class="text-red-500 font-bold"><?= $s['alpha']??0 ?>A</span>
+          <span class="font-bold text-emerald-600 dark:text-emerald-400"><?= $s['hadir']??0 ?> H</span>
+          <span class="font-bold text-red-500"><?= $s['alpha']??0 ?> A</span>
           <a href="<?= url('/attendance/'.$s['id']) ?>" class="btn btn-secondary btn-sm">Detail</a>
         </div>
       </div>
@@ -226,4 +183,44 @@
   </div>
   <?php endif; ?>
 
+  <!-- Siswa Terbaru -->
+  <div class="card">
+    <div class="flex items-center justify-between mb-5">
+      <div>
+        <h3 class="font-display font-bold text-slate-900 dark:text-white text-lg">Data Siswa Terbaru</h3>
+        <p class="text-xs text-slate-400 dark:text-dark-text mt-0.5">5 siswa terakhir</p>
+      </div>
+      <a href="<?= url('/students') ?>" class="btn btn-secondary btn-sm">Lihat Semua</a>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Siswa</th><th>NIS</th><th>Kelas</th><th>Gender</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        <?php foreach ($recentStudents as $s): ?>
+        <tr>
+          <td>
+            <div class="flex items-center gap-3">
+              <div class="avatar avatar-sm avatar-blue"><?= strtoupper(substr($s['name'],0,1)) ?></div>
+              <div>
+                <p class="font-semibold text-slate-800 dark:text-slate-100 text-sm"><?= e($s['name']) ?></p>
+                <p class="text-xs text-slate-400 dark:text-dark-text"><?= e($s['email']) ?></p>
+              </div>
+            </div>
+          </td>
+          <td><span class="font-mono text-xs bg-slate-100 dark:bg-dark-muted px-2 py-1 rounded-lg"><?= e($s['nis']) ?></span></td>
+          <td><?= $s['nama_kelas'] ? '<span class="badge badge-blue">'.e($s['nama_kelas']).'</span>' : '<span class="text-slate-300 dark:text-dark-muted text-xs">—</span>' ?></td>
+          <td><?= $s['gender']==='L' ? '<span class="badge badge-blue">L</span>' : '<span class="badge badge-purple">P</span>' ?></td>
+          <td><?= $s['is_active'] ? '<span class="badge badge-green">Aktif</span>' : '<span class="badge badge-red">Nonaktif</span>' ?></td>
+          <td><a href="<?= url('/students/'.$s['id']) ?>" class="btn btn-secondary btn-sm">Detail</a></td>
+        </tr>
+        <?php endforeach; ?>
+        <?php if (empty($recentStudents)): ?>
+        <tr><td colspan="6"><div class="empty-state py-8"><i data-lucide="users" class="empty-icon"></i><p class="empty-title">Belum ada data siswa</p></div></td></tr>
+        <?php endif; ?>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

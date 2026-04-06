@@ -24,12 +24,12 @@
   <!-- Stats -->
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
     <?php $sc = [
-      ['Mata Pelajaran', $stats['total_nilai'],   'book-open',      'text-brand-600 dark:text-brand-400',   'bg-brand-50 dark:bg-brand-900/30'],
-      ['Rata-rata Nilai',$stats['rata_nilai'],    'trending-up',    'text-emerald-600 dark:text-emerald-400','bg-emerald-50 dark:bg-emerald-900/30'],
-      ['Total Tugas',    $stats['total_tugas'],   'clipboard-list', 'text-amber-600 dark:text-amber-400',   'bg-amber-50 dark:bg-amber-900/30'],
-      ['Tugas Selesai',  $stats['tugas_selesai'], 'check-circle',   'text-violet-600 dark:text-violet-400', 'bg-violet-50 dark:bg-violet-900/30'],
+      ['Mata Pelajaran', $stats['total_nilai'], 'book-open','text-brand-600 dark:text-brand-400','bg-brand-50 dark:bg-brand-900/30'],
+      ['Rata-rata Nilai',$stats['rata_nilai'],'trending-up','text-emerald-600 dark:text-emerald-400','bg-emerald-50 dark:bg-emerald-900/30'],
+      ['Total Tugas',$stats['total_tugas'],'clipboard-list','text-amber-600 dark:text-amber-400','bg-amber-50 dark:bg-amber-900/30'],
+      ['Tugas Selesai',$stats['tugas_selesai'],'check-circle','text-violet-600 dark:text-violet-400','bg-violet-50 dark:bg-violet-900/30'],
     ];
-    foreach ($sc as $i => [$lbl,$val,$icon,$col,$bg]): ?>
+    foreach ($sc as [$lbl,$val,$icon,$col,$bg]): ?>
     <div class="card-stat">
       <div class="stat-icon <?= $bg ?> mb-4"><i data-lucide="<?= $icon ?>" class="w-5 h-5 <?= $col ?>"></i></div>
       <div class="font-display font-bold text-2xl text-slate-900 dark:text-white"><?= $val ?></div>
@@ -40,13 +40,12 @@
 
   <!-- Quick links -->
   <div class="grid grid-cols-3 gap-3">
-    <?php $ql = [
-      ['/my-grades',   'star',           'Lihat Nilai',  'bg-brand-50 dark:bg-brand-900/20 text-brand-700 dark:text-brand-400 hover:bg-brand-100'],
-      ['/attendance',  'calendar-check', 'Absensi Saya', 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-700 dark:text-cyan-400 hover:bg-cyan-100'],
-      ['/profile',     'user',           'Profil Saya',  'bg-slate-50 dark:bg-dark-card text-slate-700 dark:text-slate-300 hover:bg-slate-100'],
-    ]; ?>
-    <?php foreach ($ql as [$href,$icon,$label,$cls]): ?>
-    <a href="<?= url($href) ?>" class="flex flex-col items-center gap-2 p-4 <?= $cls ?> rounded-2xl transition-all duration-200 text-center">
+    <?php foreach ([
+      ['/my-grades','star','Lihat Nilai','bg-brand-50 dark:bg-brand-900/20 text-brand-700 dark:text-brand-400 hover:bg-brand-100'],
+      ['/attendance','calendar-check','Absensi Saya','bg-cyan-50 dark:bg-cyan-900/20 text-cyan-700 dark:text-cyan-400 hover:bg-cyan-100'],
+      ['/profile','user','Profil Saya','bg-slate-50 dark:bg-dark-card text-slate-700 dark:text-slate-300 hover:bg-slate-100'],
+    ] as [$href,$icon,$label,$cls]): ?>
+    <a href="<?= url($href) ?>" class="flex flex-col items-center gap-2 p-4 <?= $cls ?> rounded-2xl transition-all text-center">
       <i data-lucide="<?= $icon ?>" class="w-5 h-5"></i>
       <span class="text-xs font-semibold"><?= $label ?></span>
     </a>
@@ -58,35 +57,22 @@
     <!-- Nilai -->
     <div class="card">
       <div class="flex items-center justify-between mb-5">
-        <div>
-          <h3 class="font-display font-bold text-slate-900 dark:text-white text-lg">Nilai Semester Ini</h3>
-          <p class="text-xs text-slate-400 dark:text-dark-text mt-0.5">Semester <?= SEMESTER ?> · <?= TAHUN_AJARAN ?></p>
-        </div>
+        <h3 class="font-display font-bold text-slate-900 dark:text-white text-lg">Nilai Semester Ini</h3>
         <a href="<?= url('/my-grades') ?>" class="btn btn-secondary btn-sm">Lihat Semua</a>
       </div>
+
       <?php if (empty($grades)): ?>
-      <div class="empty-state py-8"><i data-lucide="bar-chart-3" class="empty-icon"></i><p class="empty-title">Belum ada nilai</p></div>
+      <div class="empty-state py-8"><p class="empty-title">Belum ada nilai</p></div>
       <?php else: ?>
       <div class="space-y-2">
         <?php foreach (array_slice($grades,0,6) as $g):
-          $na = (float)$g['nilai_akhir'];
-          $pct = $na;
-          $barColor = $na>=90?'bg-emerald-500':($na>=80?'bg-brand-500':($na>=70?'bg-amber-500':'bg-red-500'));
-          $gradeLetter = $na>=90?'A':($na>=80?'B':($na>=70?'C':'D'));
+          $na=(float)$g['nilai_akhir'];
+          $barColor=$na>=90?'bg-emerald-500':($na>=80?'bg-brand-500':($na>=70?'bg-amber-500':'bg-red-500'));
         ?>
-        <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-dark-card transition-colors">
-          <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-dark-muted flex items-center justify-center shrink-0">
-            <span class="text-xs font-bold font-mono text-slate-600 dark:text-slate-400"><?= e($g['kode_mapel']) ?></span>
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-slate-700 dark:text-slate-300 truncate"><?= e($g['nama_mapel']) ?></p>
-            <div class="progress-bar mt-1.5 h-1.5">
-              <div class="progress-fill <?= $barColor ?>" style="width:<?= $pct ?>%"></div>
-            </div>
-          </div>
-          <div class="flex items-center gap-2 shrink-0">
-            <span class="badge badge-<?= $gradeLetter ?> text-2xs"><?= $gradeLetter ?></span>
-            <span class="font-display font-bold text-slate-900 dark:text-white text-sm w-10 text-right"><?= number_format($na,1) ?></span>
+        <div class="p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-dark-card">
+          <p class="text-sm font-medium"><?= e($g['nama_mapel']) ?></p>
+          <div class="progress-bar mt-1.5 h-1.5">
+            <div class="progress-fill <?= $barColor ?>" style="width:<?= $na ?>%"></div>
           </div>
         </div>
         <?php endforeach; ?>
@@ -97,88 +83,99 @@
     <!-- Tugas -->
     <div class="card">
       <div class="flex items-center justify-between mb-5">
-        <div>
-          <h3 class="font-display font-bold text-slate-900 dark:text-white text-lg">Daftar Tugas</h3>
-          <?php if (count($assignments)>0): $pct2 = round(count($submissions)/count($assignments)*100); ?>
-          <p class="text-xs text-slate-400 dark:text-dark-text mt-0.5"><?= count($submissions) ?>/<?= count($assignments) ?> selesai (<?= $pct2 ?>%)</p>
-          <?php endif; ?>
-        </div>
+        <h3 class="font-display font-bold text-slate-900 dark:text-white text-lg">Daftar Tugas</h3>
         <a href="<?= url('/assignments') ?>" class="btn btn-secondary btn-sm">Lihat Semua</a>
       </div>
-      <?php if (empty($assignments)): ?>
-      <div class="empty-state py-8"><i data-lucide="clipboard-list" class="empty-icon"></i><p class="empty-title">Belum ada tugas</p></div>
-      <?php else: ?>
+
       <div class="space-y-2">
         <?php foreach (array_slice($assignments,0,5) as $a):
-          $isPast    = isDeadlinePassed($a['deadline']);
-          $submitted = in_array($a['id'], $submittedIds);
-          $daysLeft  = ceil((strtotime($a['deadline'])-time())/86400);
+          $isPast=isDeadlinePassed($a['deadline']);
+          $submitted=in_array($a['id'],$submittedIds);
         ?>
-        <div class="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-dark-card transition-colors">
-          <div class="w-9 h-9 rounded-xl shrink-0 flex items-center justify-center <?= $submitted?'bg-emerald-100 dark:bg-emerald-900/30':($isPast?'bg-red-100 dark:bg-red-900/30':'bg-amber-100 dark:bg-amber-900/30') ?>">
-            <i data-lucide="<?= $submitted?'check':'clock' ?>" class="w-4 h-4 <?= $submitted?'text-emerald-600 dark:text-emerald-400':($isPast?'text-red-500':'text-amber-600 dark:text-amber-400') ?>"></i>
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="font-medium text-slate-800 dark:text-slate-200 text-sm truncate"><?= e($a['judul']) ?></p>
-            <p class="text-xs text-slate-400 dark:text-dark-text mt-0.5"><?= e($a['nama_mapel']) ?> · <?= formatDate($a['deadline'],'d M Y') ?></p>
-          </div>
-          <?php if ($submitted): ?>
-          <span class="badge badge-green text-2xs shrink-0">✓ Selesai</span>
-          <?php elseif ($isPast): ?>
-          <span class="badge badge-red text-2xs shrink-0">Terlambat</span>
+        <div class="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-dark-card">
+          <p class="text-sm"><?= e($a['judul']) ?></p>
+          <?php if($submitted): ?>
+            <span class="badge badge-green text-2xs">Selesai</span>
+          <?php elseif($isPast): ?>
+            <span class="badge badge-red text-2xs">Terlambat</span>
           <?php else: ?>
-          <a href="<?= url('/assignments/'.$a['id']) ?>" class="btn btn-primary btn-sm shrink-0">Kumpul</a>
+            <a href="<?= url('/assignments/'.$a['id']) ?>" class="btn btn-primary btn-sm">Kumpul</a>
           <?php endif; ?>
         </div>
         <?php endforeach; ?>
       </div>
-      <?php endif; ?>
     </div>
   </div>
-</div>
 
-  <!-- Announcements & Calendar -->
+  <!-- Pengumuman + Calendar (FIXED) -->
   <?php if (!empty($announcements) || !empty($upcomingEvents)): ?>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
     <?php if (!empty($announcements)): ?>
     <div class="card">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="font-display font-bold text-slate-900 dark:text-white text-base">Pengumuman</h3>
-        <a href="<?= url('/announcements') ?>" class="btn btn-secondary btn-sm">Semua</a>
+        <h3 class="font-display font-bold text-slate-900 dark:text-white text-lg">Pengumuman Terbaru</h3>
+        <a href="<?= url('/announcements') ?>" class="btn btn-secondary btn-sm">Lihat Semua</a>
       </div>
-      <div class="space-y-2">
+
+      <div class="space-y-3">
         <?php foreach ($announcements as $ann): ?>
-        <a href="<?= url('/announcements/'.$ann['id']) ?>" class="block p-3 bg-slate-50 dark:bg-dark-card rounded-xl hover:bg-brand-50 dark:hover:bg-brand-900/15 transition-all group">
-          <p class="font-semibold text-slate-800 dark:text-slate-100 text-sm truncate"><?= e($ann['judul']) ?></p>
-          <p class="text-xs text-slate-400 dark:text-dark-text mt-0.5"><?= timeAgo($ann['published_at']) ?></p>
+        <a href="<?= url('/announcements/'.$ann['id']) ?>" class="block p-3 bg-slate-50 dark:bg-dark-card rounded-xl hover:bg-brand-50 dark:hover:bg-brand-900/15 border border-transparent hover:border-brand-100 dark:hover:border-brand-900/40 transition-all group">
+          <div class="flex items-start gap-2.5">
+            <?php if (!empty($ann['is_pinned'])): ?>
+              <i data-lucide="pin" class="w-3.5 h-3.5 text-amber-500 mt-0.5"></i>
+            <?php else: ?>
+              <i data-lucide="megaphone" class="w-3.5 h-3.5 text-brand-500 mt-0.5"></i>
+            <?php endif; ?>
+            <div class="flex-1 min-w-0">
+              <p class="font-semibold text-sm truncate"><?= e($ann['judul']) ?></p>
+              <p class="text-xs text-slate-400 mt-0.5"><?= timeAgo($ann['published_at']) ?></p>
+            </div>
+          </div>
         </a>
         <?php endforeach; ?>
       </div>
     </div>
     <?php endif; ?>
+
     <?php if (!empty($upcomingEvents)): ?>
     <div class="card">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="font-display font-bold text-slate-900 dark:text-white text-base">Event Mendatang</h3>
+        <h3 class="font-display font-bold text-slate-900 dark:text-white text-lg">Event Mendatang</h3>
         <a href="<?= url('/calendar') ?>" class="btn btn-secondary btn-sm">Kalender</a>
       </div>
-      <div class="space-y-2">
-        <?php $evC=['libur'=>'text-red-600','ujian'=>'text-amber-600','event'=>'text-brand-600','lainnya'=>'text-slate-500'];
-        foreach ($upcomingEvents as $ev): $d=(int)ceil((strtotime($ev['tanggal_mulai'])-time())/86400); ?>
-        <div class="flex items-center gap-3 p-2.5 bg-slate-50 dark:bg-dark-card rounded-xl">
-          <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-dark-muted flex items-center justify-center shrink-0 text-center leading-none">
-            <span class="text-xs font-bold <?= $evC[$ev['tipe']]??'text-slate-500' ?>"><?= date('d',strtotime($ev['tanggal_mulai'])) ?></span>
+
+      <div class="space-y-3">
+        <?php
+        $evColors=[
+          'libur'=>'bg-red-100 dark:bg-red-900/30 text-red-700',
+          'ujian'=>'bg-amber-100 dark:bg-amber-900/30 text-amber-700',
+          'event'=>'bg-brand-100 dark:bg-brand-900/30 text-brand-700',
+          'lainnya'=>'bg-slate-100 dark:bg-dark-muted text-slate-600'
+        ];
+        foreach ($upcomingEvents as $ev):
+          $t=strtotime($ev['tanggal_mulai']);
+          $d=(int)ceil(($t-time())/86400);
+          $type=$ev['tipe']??'lainnya';
+        ?>
+        <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-dark-card rounded-xl">
+          <div class="w-12 h-12 rounded-xl <?= $evColors[$type] ?> flex flex-col items-center justify-center">
+            <span class="text-sm font-bold"><?= date('d',$t) ?></span>
+            <span class="text-2xs"><?= date('M',$t) ?></span>
           </div>
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate"><?= e($ev['judul']) ?></p>
-            <p class="text-xs text-slate-400 dark:text-dark-text"><?= $d<=0?'Berlangsung':"$d hari lagi" ?></p>
+          <div class="flex-1">
+            <p class="font-semibold text-sm truncate"><?= e($ev['judul']) ?></p>
+            <p class="text-xs text-slate-400"><?= $d<=0?'Sedang berlangsung':"dalam $d hari" ?></p>
           </div>
         </div>
         <?php endforeach; ?>
       </div>
     </div>
     <?php endif; ?>
+
   </div>
   <?php endif; ?>
+
+</div>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

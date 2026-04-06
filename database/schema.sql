@@ -343,3 +343,129 @@ CREATE TABLE IF NOT EXISTS announcements (
 INSERT INTO announcements (user_id, judul, konten, target_role, is_pinned) VALUES
 (1, 'Selamat Datang di SiAkad SD', 'Sistem Informasi Akademik Sekolah Dasar telah resmi diluncurkan. Semua guru dan siswa dapat menggunakan sistem ini untuk mengelola kegiatan akademik.', 'all', 1),
 (1, 'Jadwal Ujian Tengah Semester', 'UTS Semester 1 akan dilaksanakan pada 14-19 Oktober 2024. Harap semua siswa mempersiapkan diri dengan baik.', 'murid', 0);
+
+-- =============================================
+-- EXPORT (no extra tables needed)
+-- =============================================
+
+-- =============================================
+-- ACADEMIC YEARS
+-- =============================================
+CREATE TABLE IF NOT EXISTS academic_years (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tahun_ajaran VARCHAR(10) NOT NULL,
+    semester ENUM('1','2') NOT NULL,
+    tanggal_mulai DATE NOT NULL,
+    tanggal_selesai DATE NOT NULL,
+    is_active TINYINT(1) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_period (tahun_ajaran, semester)
+);
+INSERT INTO academic_years (tahun_ajaran,semester,tanggal_mulai,tanggal_selesai,is_active) VALUES
+('2024/2025','1','2024-07-15','2024-12-20',1),
+('2024/2025','2','2025-01-06','2025-06-30',0);
+
+-- =============================================
+-- PROMOTIONS (no extra table, uses existing)
+-- =============================================
+ALTER TABLE students ADD COLUMN IF NOT EXISTS status ENUM('aktif','alumni','pindah') NOT NULL DEFAULT 'aktif';
+ALTER TABLE students ADD COLUMN IF NOT EXISTS angkatan VARCHAR(10) DEFAULT NULL;
+
+-- =============================================
+-- DISCUSSIONS
+-- =============================================
+CREATE TABLE IF NOT EXISTS discussions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    class_id INT NOT NULL,
+    assignment_id INT DEFAULT NULL,
+    user_id INT NOT NULL,
+    judul VARCHAR(200) NOT NULL,
+    konten TEXT NOT NULL,
+    is_pinned TINYINT(1) DEFAULT 0,
+    reply_count INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE,
+    FOREIGN KEY (assignment_id) REFERENCES assignments(id) ON DELETE SET NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS discussion_replies (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    discussion_id INT NOT NULL,
+    user_id INT NOT NULL,
+    konten TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (discussion_id) REFERENCES discussions(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- =============================================
+-- SPP
+-- =============================================
+CREATE TABLE IF NOT EXISTS spp_settings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tahun_ajaran VARCHAR(10) NOT NULL,
+    kelas_tingkat ENUM('1','2','3','4','5','6') NOT NULL,
+    jumlah_per_bulan DECIMAL(12,2) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_setting (tahun_ajaran, kelas_tingkat)
+);
+
+CREATE TABLE IF NOT EXISTS spp_payments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    bulan TINYINT NOT NULL COMMENT '1-12',
+    tahun INT NOT NULL,
+    jumlah DECIMAL(12,2) NOT NULL,
+    status ENUM('lunas','belum','cicil') NOT NULL DEFAULT 'belum',
+    tanggal_bayar DATE DEFAULT NULL,
+    keterangan VARCHAR(200),
+    created_by INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_payment (student_id, bulan, tahun),
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
+INSERT INTO spp_settings (tahun_ajaran, kelas_tingkat, jumlah_per_bulan) VALUES
+('2024/2025','1',50000),('2024/2025','2',50000),('2024/2025','3',60000),
+('2024/2025','4',60000),('2024/2025','5',70000),('2024/2025','6',70000);
+
+-- =============================================
+-- SECURITY
+-- =============================================
+CREATE TABLE IF NOT EXISTS login_attempts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ip VARCHAR(45) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    attempted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_ip_time (ip, attempted_at),
+    INDEX idx_email_time (email, attempted_at)
+);
+
+CREATE TABLE IF NOT EXISTS remember_tokens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    token VARCHAR(64) NOT NULL UNIQUE,
+    expires_at DATETIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT DEFAULT NULL,
+    aksi VARCHAR(50) NOT NULL,
+    tabel VARCHAR(50),
+    record_id INT DEFAULT NULL,
+    data_lama JSON DEFAULT NULL,
+    data_baru JSON DEFAULT NULL,
+    ip VARCHAR(45),
+    user_agent VARCHAR(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_user (user_id),
+    INDEX idx_tabel (tabel, record_id),
+    INDEX idx_created (created_at)
+);
