@@ -89,6 +89,11 @@ class GradeController extends Controller {
                 ]);
             }
             $this->db->commit();
+            // Send notifications to students
+            foreach ($studentIds as $sid) {
+                $st = (new StudentModel())->find((int)$sid);
+                if ($st) NotificationModel::send($st['user_id'], 'nilai', '📊 Nilai baru tersedia', 'Nilai mata pelajaran kamu sudah diinput oleh guru.', url('/my-grades'));
+            }
             Flash::set('success', 'Nilai berhasil disimpan untuk ' . count($studentIds) . ' siswa.');
         } catch (Exception $e) {
             $this->db->rollback();
@@ -184,6 +189,9 @@ class AssignmentController extends Controller {
             'max_nilai'   => (int)$this->post('max_nilai', 100),
         ]);
 
+        // Notify students in the class
+        $classId2 = (int)$this->post('class_id');
+        NotificationModel::sendToClass($classId2, 'tugas', '📚 Tugas baru: ' . $this->post('judul'), $this->post('deskripsi',''), url('/assignments'));
         Flash::set('success', 'Tugas berhasil dibuat.');
         redirect('/assignments');
     }

@@ -449,3 +449,298 @@ class AttendanceModel extends Model {
         ", [$studentId]);
     }
 }
+
+// =============================================
+// REPORT NOTE MODEL
+// =============================================
+class ReportNoteModel extends Model {
+    protected string $table = 'report_notes';
+
+    public function findByStudent(int $studentId, string $semester, string $tahunAjaran): ?array {
+        return $this->db->fetch(
+            "SELECT * FROM report_notes WHERE student_id=? AND semester=? AND tahun_ajaran=?",
+            [$studentId, $semester, $tahunAjaran]
+        );
+    }
+
+    public function upsert(array $data): void {
+        $existing = $this->findByStudent($data['student_id'], $data['semester'], $data['tahun_ajaran']);
+        if ($existing) $this->update($existing['id'], $data);
+        else $this->create($data);
+    }
+
+    public function getClassReport(int $classId, string $semester, string $tahunAjaran): array {
+        return $this->db->fetchAll("
+            SELECT s.id as student_id, u.name, st.nis, st.gender, st.birth_date,
+                   rn.catatan_wali, rn.catatan_kepala, rn.predikat_sikap,
+                   rn.predikat_keterampilan, rn.ranking,
+                   ROUND(AVG(g.nilai_akhir),2) as rata_nilai,
+                   COUNT(g.id) as jumlah_mapel,
+                   SUM(CASE WHEN att.status='hadir' THEN 1 ELSE 0 END) as total_hadir,
+                   SUM(CASE WHEN att.status='sakit' THEN 1 ELSE 0 END) as total_sakit,
+                   SUM(CASE WHEN att.status='izin'  THEN 1 ELSE 0 END) as total_izin,
+                   SUM(CASE WHEN att.status='alpha' THEN 1 ELSE 0 END) as total_alpha
+            FROM students s
+            JOIN users u ON s.user_id = u.id
+            JOIN students st ON s.id = st.id
+            LEFT JOIN grades g ON (g.student_id=s.id AND g.semester=? AND g.tahun_ajaran=?)
+            LEFT JOIN attendances att ON att.student_id=s.id
+            LEFT JOIN attendance_sessions ases ON (att.session_id=ases.id AND ases.class_id=?)
+            LEFT JOIN report_notes rn ON (rn.student_id=s.id AND rn.semester=? AND rn.tahun_ajaran=?)
+            WHERE s.class_id=?
+            GROUP BY s.id, u.name, st.nis, st.gender, st.birth_date,
+                     rn.catatan_wali, rn.catatan_kepala, rn.predikat_sikap,
+                     rn.predikat_keterampilan, rn.ranking
+            ORDER BY u.name
+        ", [$semester, $tahunAjaran, $classId, $semester, $tahunAjaran, $classId]);
+    }
+
+    public function getDetailForRapor(int $studentId, string $semester, string $tahunAjaran): array {
+        $grades = (new GradeModel())->getStudentGrades($studentId, $semester, $tahunAjaran);
+        $note   = $this->findByStudent($studentId, $semester, $tahunAjaran);
+        $student = (new StudentModel())->findWithDetails($studentId);
+        $absStats = (new AttendanceSessionModel())->getOverallStats($studentId);
+        return compact('grades','note','student','absStats');
+    }
+}
+
+// =============================================
+// CALENDAR MODEL
+// =============================================
+class CalendarModel extends Model {
+    protected string $table = 'academic_calendar';
+
+    public function getByMonth(int $year, int $month): array {
+        $start = sprintf('%04d-%02d-01', $year, $month);
+        $end   = date('Y-m-t', strtotime($start));
+        return $this->db->fetchAll("
+            SELECT * FROM academic_calendar
+            WHERE tanggal_mulai <= ? AND tanggal_selesai >= ?
+            ORDER BY tanggal_mulai
+        ", [$end, $start]);
+    }
+
+    public function getUpcoming(int $limit = 5): array {
+        return $this->db->fetchAll("
+            SELECT * FROM academic_calendar
+            WHERE tanggal_selesai >= CURDATE()
+            ORDER BY tanggal_mulai LIMIT $limit
+        ");
+    }
+
+    public function allWithCreator(): array {
+        return $this->db->fetchAll("
+            SELECT c.*, u.name as created_by_name
+            FROM academic_calendar c
+            JOIN users u ON c.created_by = u.id
+            ORDER BY c.tanggal_mulai DESC
+        ");
+    }
+}
+
+// =============================================
+// SCHEDULE MODEL
+// =============================================
+class ScheduleModel extends Model {
+    protected string $table = 'schedules';
+
+    public function getByClass(int $classId): array {
+        return $this->db->fetchAll("
+            SELECT s.*, sub.nama_mapel, sub.kode_mapel, u.name as guru_name
+            FROM schedules s
+            JOIN subjects sub ON s.subject_id = sub.id
+            JOIN teachers t ON s.teacher_id = t.id
+            JOIN users u ON t.user_id = u.id
+            WHERE s.class_id = ?
+            ORDER BY FIELD(s.hari,'senin','selasa','rabu','kamis','jumat','sabtu'), s.jam_mulai
+        ", [$classId]);
+    }
+
+    public function getByTeacher(int $teacherId): array {
+        return $this->db->fetchAll("
+            SELECT s.*, sub.nama_mapel, c.nama_kelas
+            FROM schedules s
+            JOIN subjects sub ON s.subject_id = sub.id
+            JOIN classes c ON s.class_id = c.id
+            WHERE s.teacher_id = ?
+            ORDER BY FIELD(s.hari,'senin','selasa','rabu','kamis','jumat','sabtu'), s.jam_mulai
+        ", [$teacherId]);
+    }
+
+    public function getTodaySchedule(int $classId): array {
+        $hariIni = ['Sunday'=>'minggu','Monday'=>'senin','Tuesday'=>'selasa',
+                    'Wednesday'=>'rabu','Thursday'=>'kamis','Friday'=>'jumat','Saturday'=>'sabtu'][date('l')];
+        return $this->db->fetchAll("
+            SELECT s.*, sub.nama_mapel, u.name as guru_name
+            FROM schedules s
+            JOIN subjects sub ON s.subject_id = sub.id
+            JOIN teachers t ON s.teacher_id = t.id
+            JOIN users u ON t.user_id = u.id
+            WHERE s.class_id=? AND s.hari=?
+            ORDER BY s.jam_mulai
+        ", [$classId, $hariIni]);
+    }
+}
+
+// =============================================
+// TEACHING JOURNAL MODEL
+// =============================================
+class TeachingJournalModel extends Model {
+    protected string $table = 'teaching_journals';
+
+    public function allWithDetails(?int $teacherId = null): array {
+        $sql = "
+            SELECT j.*, c.nama_kelas, s.nama_mapel, s.kode_mapel,
+                   u.name as guru_name,
+                   ases.tanggal as sesi_tanggal
+            FROM teaching_journals j
+            JOIN classes c ON j.class_id = c.id
+            JOIN subjects s ON j.subject_id = s.id
+            JOIN teachers t ON j.teacher_id = t.id
+            JOIN users u ON t.user_id = u.id
+            LEFT JOIN attendance_sessions ases ON j.attendance_session_id = ases.id
+            WHERE 1=1
+        ";
+        $params = [];
+        if ($teacherId) { $sql .= " AND j.teacher_id=?"; $params[] = $teacherId; }
+        $sql .= " ORDER BY j.tanggal DESC, j.created_at DESC";
+        return $this->db->fetchAll($sql, $params);
+    }
+
+    public function findWithDetails(int $id): ?array {
+        return $this->db->fetch("
+            SELECT j.*, c.nama_kelas, s.nama_mapel, u.name as guru_name
+            FROM teaching_journals j
+            JOIN classes c ON j.class_id = c.id
+            JOIN subjects s ON j.subject_id = s.id
+            JOIN teachers t ON j.teacher_id = t.id
+            JOIN users u ON t.user_id = u.id
+            WHERE j.id=?
+        ", [$id]);
+    }
+
+    public function getByClass(int $classId, ?int $subjectId = null): array {
+        $sql = "
+            SELECT j.*, s.nama_mapel, u.name as guru_name
+            FROM teaching_journals j
+            JOIN subjects s ON j.subject_id = s.id
+            JOIN teachers t ON j.teacher_id = t.id
+            JOIN users u ON t.user_id = u.id
+            WHERE j.class_id=?
+        ";
+        $params = [$classId];
+        if ($subjectId) { $sql .= " AND j.subject_id=?"; $params[] = $subjectId; }
+        $sql .= " ORDER BY j.tanggal DESC";
+        return $this->db->fetchAll($sql, $params);
+    }
+}
+
+// =============================================
+// NOTIFICATION MODEL
+// =============================================
+class NotificationModel extends Model {
+    protected string $table = 'notifications';
+
+    public function getForUser(int $userId, int $limit = 20): array {
+        return $this->db->fetchAll("
+            SELECT * FROM notifications
+            WHERE user_id=?
+            ORDER BY created_at DESC
+            LIMIT $limit
+        ", [$userId]);
+    }
+
+    public function countUnread(int $userId): int {
+        return $this->db->count(
+            "SELECT COUNT(*) FROM notifications WHERE user_id=? AND is_read=0",
+            [$userId]
+        );
+    }
+
+    public function markRead(int $id, int $userId): void {
+        $this->db->query("UPDATE notifications SET is_read=1 WHERE id=? AND user_id=?", [$id, $userId]);
+    }
+
+    public function markAllRead(int $userId): void {
+        $this->db->query("UPDATE notifications SET is_read=1 WHERE user_id=?", [$userId]);
+    }
+
+    public static function send(int $userId, string $tipe, string $judul, string $pesan = '', string $url = ''): void {
+        $db = Database::getInstance();
+        $db->insert('notifications', [
+            'user_id' => $userId,
+            'tipe'    => $tipe,
+            'judul'   => $judul,
+            'pesan'   => $pesan,
+            'url'     => $url,
+            'is_read' => 0,
+        ]);
+    }
+
+    public static function sendToRole(string $role, string $tipe, string $judul, string $pesan = '', string $url = ''): void {
+        $db = Database::getInstance();
+        $users = $db->fetchAll("SELECT id FROM users WHERE role=? AND is_active=1", [$role]);
+        foreach ($users as $u) {
+            self::send($u['id'], $tipe, $judul, $pesan, $url);
+        }
+    }
+
+    public static function sendToClass(int $classId, string $tipe, string $judul, string $pesan = '', string $url = ''): void {
+        $db = Database::getInstance();
+        $students = $db->fetchAll("
+            SELECT u.id FROM students s JOIN users u ON s.user_id=u.id
+            WHERE s.class_id=? AND u.is_active=1
+        ", [$classId]);
+        foreach ($students as $u) {
+            self::send($u['id'], $tipe, $judul, $pesan, $url);
+        }
+    }
+}
+
+// =============================================
+// ANNOUNCEMENT MODEL
+// =============================================
+class AnnouncementModel extends Model {
+    protected string $table = 'announcements';
+
+    public function getVisible(string $role): array {
+        return $this->db->fetchAll("
+            SELECT a.*, u.name as author_name
+            FROM announcements a
+            JOIN users u ON a.user_id = u.id
+            WHERE (a.target_role='all' OR a.target_role=?)
+              AND a.published_at <= NOW()
+              AND (a.expired_at IS NULL OR a.expired_at >= NOW())
+            ORDER BY a.is_pinned DESC, a.published_at DESC
+        ", [$role]);
+    }
+
+    public function allWithAuthor(): array {
+        return $this->db->fetchAll("
+            SELECT a.*, u.name as author_name
+            FROM announcements a
+            JOIN users u ON a.user_id = u.id
+            ORDER BY a.is_pinned DESC, a.created_at DESC
+        ");
+    }
+
+    public function findWithAuthor(int $id): ?array {
+        return $this->db->fetch("
+            SELECT a.*, u.name as author_name
+            FROM announcements a
+            JOIN users u ON a.user_id = u.id
+            WHERE a.id=?
+        ", [$id]);
+    }
+
+    public function getRecent(string $role, int $limit = 3): array {
+        return $this->db->fetchAll("
+            SELECT * FROM announcements
+            WHERE (target_role='all' OR target_role=?)
+              AND published_at <= NOW()
+              AND (expired_at IS NULL OR expired_at >= NOW())
+            ORDER BY is_pinned DESC, published_at DESC
+            LIMIT $limit
+        ", [$role]);
+    }
+}

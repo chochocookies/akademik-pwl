@@ -113,6 +113,13 @@ class AttendanceController extends Controller {
             }
         }
 
+        // Notify alpha students
+        foreach ($statuses as $studentId => $status) {
+            if ($status === 'alpha') {
+                $st = (new StudentModel())->find((int)$studentId);
+                if ($st) NotificationModel::send($st['user_id'], 'absensi', '⚠️ Ketidakhadiran tercatat', 'Kamu tercatat ALPHA pada salah satu mata pelajaran hari ini.', url('/attendance'));
+            }
+        }
         Flash::set('success', 'Absensi berhasil disimpan.');
         redirect('/attendance/'.$id);
     }

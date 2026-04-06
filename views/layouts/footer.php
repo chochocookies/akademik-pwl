@@ -12,6 +12,28 @@
 <script>
 lucide.createIcons();
 
+// ── Notification badge polling ──────────────────────────
+async function updateNotifBadge() {
+  try {
+    const r = await fetch('<?= url('/notifications/count') ?>');
+    const data = await r.json();
+    const badge = document.getElementById('notif-badge');
+    if (badge) {
+      if (data.count > 0) {
+        badge.textContent = data.count > 9 ? '9+' : data.count;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+  } catch(e) {}
+}
+updateNotifBadge();
+setInterval(updateNotifBadge, 60000); // poll every 60s
+
+// ── Announcement banner (if pinned & not dismissed) ─────
+// Could add localStorage dismissal logic here
+
 // Dark mode
 const htmlEl = document.getElementById('html-root');
 if (localStorage.getItem('theme')==='dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {

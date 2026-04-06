@@ -29,7 +29,9 @@ class DashboardController extends Controller {
         $totalSessions  = count((new AttendanceSessionModel())->allWithDetails());
         $stats['total_sesi'] = $totalSessions;
 
-        $this->view('dashboard.admin', compact('stats', 'recentStudents', 'classSummary', 'recentSessions'));
+        $announcements = (new AnnouncementModel())->getRecent('all', 3);
+        $upcomingEvents = (new CalendarModel())->getUpcoming(3);
+        $this->view('dashboard.admin', compact('stats','recentStudents','classSummary','recentSessions','announcements','upcomingEvents'));
     }
 
     // =============================================
@@ -59,7 +61,9 @@ class DashboardController extends Controller {
             'total_tugas'    => count((new AssignmentModel())->allWithDetails($teacher['id'])),
         ];
 
-        $this->view('dashboard.guru', compact('teacher', 'classes', 'assignments', 'stats'));
+        $announcements  = (new AnnouncementModel())->getRecent('guru', 2);
+        $upcomingEvents = (new CalendarModel())->getUpcoming(3);
+        $this->view('dashboard.guru', compact('teacher','classes','assignments','stats','announcements','upcomingEvents'));
     }
 
     // =============================================
@@ -90,6 +94,8 @@ class DashboardController extends Controller {
             'tugas_selesai'  => count($submissions),
         ];
 
-        $this->view('dashboard.murid', compact('student', 'grades', 'assignments', 'submissions', 'submittedIds', 'stats'));
+        $announcements  = (new AnnouncementModel())->getRecent('murid', 2);
+        $upcomingEvents = (new CalendarModel())->getUpcoming(3);
+        $this->view('dashboard.murid', compact('student','grades','assignments','submissions','submittedIds','stats','announcements','upcomingEvents'));
     }
 }

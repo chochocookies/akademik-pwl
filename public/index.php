@@ -10,14 +10,21 @@ require_once BASE_PATH . '/app/core/Auth.php';
 require_once BASE_PATH . '/app/core/BaseClasses.php';
 require_once BASE_PATH . '/app/core/Router.php';
 
+// Models
 require_once BASE_PATH . '/app/models/Models.php';
 
+// Controllers
 require_once BASE_PATH . '/app/controllers/AuthController.php';
 require_once BASE_PATH . '/app/controllers/DashboardController.php';
 require_once BASE_PATH . '/app/controllers/ResourceControllers.php';
 require_once BASE_PATH . '/app/controllers/GradeAssignmentControllers.php';
 require_once BASE_PATH . '/app/controllers/AttendanceController.php';
 require_once BASE_PATH . '/app/controllers/AdminControllers.php';
+require_once BASE_PATH . '/app/controllers/ReportController.php';
+require_once BASE_PATH . '/app/controllers/CalendarController.php';
+require_once BASE_PATH . '/app/controllers/JournalController.php';
+require_once BASE_PATH . '/app/controllers/NotificationController.php';
+require_once BASE_PATH . '/app/controllers/AnnouncementController.php';
 
 Auth::start();
 

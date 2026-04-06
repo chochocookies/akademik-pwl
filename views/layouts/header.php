@@ -37,40 +37,56 @@ $_roleData = [
 $_rd = $_roleData[$_role] ?? $_roleData['admin'];
 $_nav = [
   'admin'=>[
-    ['icon'=>'layout-dashboard','label'=>'Dashboard',   'href'=>'/dashboard/admin','s'=>null],
+    ['icon'=>'layout-dashboard','label'=>'Dashboard',     'href'=>'/dashboard/admin','s'=>null],
     ['s'=>'Master Data'],
-    ['icon'=>'users',           'label'=>'Data Siswa',  'href'=>'/students'],
-    ['icon'=>'user-check',      'label'=>'Data Guru',   'href'=>'/teachers'],
-    ['icon'=>'building-2',      'label'=>'Data Kelas',  'href'=>'/classes'],
+    ['icon'=>'users',           'label'=>'Data Siswa',    'href'=>'/students'],
+    ['icon'=>'user-check',      'label'=>'Data Guru',     'href'=>'/teachers'],
+    ['icon'=>'building-2',      'label'=>'Data Kelas',    'href'=>'/classes'],
     ['icon'=>'book-open',       'label'=>'Mata Pelajaran','href'=>'/subjects'],
     ['icon'=>'shield',          'label'=>'Manajemen User','href'=>'/users'],
     ['s'=>'Akademik'],
-    ['icon'=>'bar-chart-3',     'label'=>'Nilai',       'href'=>'/grades'],
-    ['icon'=>'clipboard-list',  'label'=>'Tugas',       'href'=>'/assignments'],
-    ['icon'=>'calendar-check',  'label'=>'Absensi',     'href'=>'/attendance'],
+    ['icon'=>'bar-chart-3',     'label'=>'Nilai',         'href'=>'/grades'],
+    ['icon'=>'clipboard-list',  'label'=>'Tugas',         'href'=>'/assignments'],
+    ['icon'=>'calendar-check',  'label'=>'Absensi',       'href'=>'/attendance'],
+    ['icon'=>'file-text',       'label'=>'Rapor Digital', 'href'=>'/reports'],
+    ['s'=>'Sekolah'],
+    ['icon'=>'calendar',        'label'=>'Kalender',      'href'=>'/calendar'],
+    ['icon'=>'megaphone',       'label'=>'Pengumuman',    'href'=>'/announcements'],
+    ['icon'=>'book-open-check', 'label'=>'Jurnal Mengajar','href'=>'/journals'],
     ['s'=>'Akun'],
-    ['icon'=>'user',            'label'=>'Profil Saya', 'href'=>'/profile'],
+    ['icon'=>'bell',            'label'=>'Notifikasi',    'href'=>'/notifications'],
+    ['icon'=>'user',            'label'=>'Profil Saya',   'href'=>'/profile'],
   ],
   'guru'=>[
-    ['icon'=>'layout-dashboard','label'=>'Dashboard',   'href'=>'/dashboard/guru','s'=>null],
+    ['icon'=>'layout-dashboard','label'=>'Dashboard',     'href'=>'/dashboard/guru','s'=>null],
     ['s'=>'Kelas'],
-    ['icon'=>'building-2',      'label'=>'Kelas Saya',  'href'=>'/classes'],
+    ['icon'=>'building-2',      'label'=>'Kelas Saya',   'href'=>'/classes'],
     ['s'=>'Akademik'],
-    ['icon'=>'bar-chart-3',     'label'=>'Input Nilai', 'href'=>'/grades'],
-    ['icon'=>'clipboard-list',  'label'=>'Tugas',       'href'=>'/assignments'],
-    ['icon'=>'file-plus',       'label'=>'Buat Tugas',  'href'=>'/assignments/create'],
-    ['icon'=>'calendar-check',  'label'=>'Absensi',     'href'=>'/attendance'],
+    ['icon'=>'bar-chart-3',     'label'=>'Input Nilai',  'href'=>'/grades'],
+    ['icon'=>'clipboard-list',  'label'=>'Tugas',        'href'=>'/assignments'],
+    ['icon'=>'calendar-check',  'label'=>'Absensi',      'href'=>'/attendance'],
+    ['icon'=>'file-text',       'label'=>'Rapor',        'href'=>'/reports'],
+    ['icon'=>'book-open-check', 'label'=>'Jurnal Mengajar','href'=>'/journals'],
+    ['s'=>'Sekolah'],
+    ['icon'=>'calendar',        'label'=>'Kalender',     'href'=>'/calendar'],
+    ['icon'=>'megaphone',       'label'=>'Pengumuman',   'href'=>'/announcements'],
     ['s'=>'Akun'],
-    ['icon'=>'user',            'label'=>'Profil Saya', 'href'=>'/profile'],
+    ['icon'=>'bell',            'label'=>'Notifikasi',   'href'=>'/notifications'],
+    ['icon'=>'user',            'label'=>'Profil Saya',  'href'=>'/profile'],
   ],
   'murid'=>[
-    ['icon'=>'layout-dashboard','label'=>'Dashboard',  'href'=>'/dashboard/murid','s'=>null],
+    ['icon'=>'layout-dashboard','label'=>'Dashboard',   'href'=>'/dashboard/murid','s'=>null],
     ['s'=>'Akademik'],
-    ['icon'=>'star',            'label'=>'Nilai Saya', 'href'=>'/my-grades'],
-    ['icon'=>'clipboard-list',  'label'=>'Tugas',      'href'=>'/assignments'],
-    ['icon'=>'calendar-check',  'label'=>'Absensi',    'href'=>'/attendance'],
+    ['icon'=>'star',            'label'=>'Nilai Saya',  'href'=>'/my-grades'],
+    ['icon'=>'clipboard-list',  'label'=>'Tugas',       'href'=>'/assignments'],
+    ['icon'=>'calendar-check',  'label'=>'Absensi',     'href'=>'/attendance'],
+    ['icon'=>'file-text',       'label'=>'Rapor',       'href'=>'/my-rapor'],
+    ['s'=>'Sekolah'],
+    ['icon'=>'calendar',        'label'=>'Kalender',    'href'=>'/calendar'],
+    ['icon'=>'megaphone',       'label'=>'Pengumuman',  'href'=>'/announcements'],
     ['s'=>'Akun'],
-    ['icon'=>'user',            'label'=>'Profil Saya','href'=>'/profile'],
+    ['icon'=>'bell',            'label'=>'Notifikasi',  'href'=>'/notifications'],
+    ['icon'=>'user',            'label'=>'Profil Saya', 'href'=>'/profile'],
   ],
 ];
 $_items = $_nav[$_role] ?? [];
@@ -159,6 +175,15 @@ $_items = $_nav[$_role] ?? [];
           <i data-lucide="sun"  class="w-4 h-4 dark:hidden text-amber-500"></i>
           <i data-lucide="moon" class="w-4 h-4 hidden dark:block text-brand-400"></i>
         </button>
+        <!-- Notification bell -->
+        <a href="<?= url('/notifications') ?>" class="btn btn-ghost btn-icon relative" title="Notifikasi">
+          <i data-lucide="bell" class="w-4 h-4"></i>
+          <span id="notif-badge" class="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-red-500 text-white text-2xs font-bold flex items-center justify-center hidden">0</span>
+        </a>
+        <!-- Announcements quick link -->
+        <a href="<?= url('/announcements') ?>" class="btn btn-ghost btn-icon hidden md:flex" title="Pengumuman">
+          <i data-lucide="megaphone" class="w-4 h-4"></i>
+        </a>
         <div class="avatar avatar-sm <?= $_rd['av'] ?>"><?= strtoupper(substr($_user['name'],0,1)) ?></div>
       </div>
     </header>

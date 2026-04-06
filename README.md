@@ -1,238 +1,208 @@
-# 🎓 SiAkad SD — Sistem Informasi Akademik Sekolah Dasar
-**PHP Native MVC + Role-Based Access Control + Tailwind CSS**
+# SiAkad SD — Sistem Informasi Akademik Sekolah Dasar
+
+PHP Native · MVC · RBAC · Tailwind CSS v3 · Dark Mode
 
 ---
 
-## 📁 Struktur Proyek
+## Fitur yang Sudah Ada
+
+### Admin
+- Dashboard: statistik siswa, guru, kelas, nilai, absensi
+- CRUD Siswa, Guru, Kelas, Mata Pelajaran
+- Manajemen User (aktif/nonaktif/hapus)
+- Monitor Nilai, Tugas, Absensi semua kelas
+- Profil + ganti password
+
+### Guru
+- Dashboard + quick actions
+- Input nilai batch (Harian/UTS/UAS, preview real-time)
+- Buat/edit/hapus tugas, nilai submission siswa
+- Buat sesi absensi + isi kehadiran (Hadir/Sakit/Izin/Alpha)
+- Profil + ganti password
+
+### Murid
+- Dashboard + quick links
+- Rekap nilai per mapel + grade A/B/C/D
+- Submit tugas + upload file
+- Rekap absensi per mapel + riwayat
+- Profil + ganti password
+
+### Sistem
+- Clean URL routing
+- CSRF protection
+- Flash messages auto-dismiss
+- Form validation
+- Dark mode (persisten localStorage)
+- Tailwind CSS v3 lokal (tidak ada CDN)
+- Responsive + mobile sidebar
+
+---
+
+## Struktur Folder
 
 ```
 akademik/
 ├── app/
-│   ├── config.php                    # Konfigurasi aplikasi & database
+│   ├── config.php
 │   ├── core/
-│   │   ├── Database.php              # Singleton PDO wrapper
-│   │   ├── Auth.php                  # Session-based authentication
-│   │   ├── helpers.php               # Middleware, Flash, Validator, helpers
-│   │   ├── Router.php                # Custom URL router
-│   │   └── BaseClasses.php           # Abstract Controller & Model
-│   ├── models/
-│   │   └── Models.php                # Semua model (User, Student, Teacher, dll.)
-│   └── controllers/
-│       ├── AuthController.php        # Login, logout, redirect
-│       ├── DashboardController.php   # Dashboard per role
-│       ├── ResourceControllers.php   # Student, Teacher, Class CRUD
-│       └── GradeAssignmentControllers.php # Grade & Assignment logic
+│   │   ├── Auth.php
+│   │   ├── BaseClasses.php
+│   │   ├── Database.php
+│   │   ├── Router.php
+│   │   └── helpers.php
+│   ├── controllers/
+│   │   ├── AuthController.php
+│   │   ├── DashboardController.php
+│   │   ├── ResourceControllers.php         # Student, Teacher, Class
+│   │   ├── GradeAssignmentControllers.php  # Grade, Assignment
+│   │   ├── AttendanceController.php
+│   │   └── AdminControllers.php            # Subject, User, Profile
+│   └── models/
+│       └── Models.php                      # Semua model
+│
+├── database/
+│   └── schema.sql
+│
+├── public/                                 # ← Web root Apache
+│   ├── index.php                           # Entry point
+│   ├── .htaccess
+│   ├── css/app.css                         # Compiled Tailwind (66KB)
+│   └── uploads/                            # [buat manual] file submission
+│
+├── resources/css/app.css                   # Tailwind source
+├── routes/web.php
+│
 ├── views/
+│   ├── landing.php                         # [Placeholder] Landing page
 │   ├── layouts/
-│   │   ├── header.php                # Layout utama + sidebar + topbar
-│   │   └── footer.php                # Footer + JS scripts
+│   │   ├── header.php                      # Sidebar + topbar + dark mode
+│   │   └── footer.php
 │   ├── auth/login.php
 │   ├── dashboard/{admin,guru,murid}.php
 │   ├── students/{index,create,edit,show}.php
 │   ├── teachers/{index,create,edit,show}.php
 │   ├── classes/{index,create,edit,show}.php
+│   ├── subjects/{index,create,edit}.php
 │   ├── grades/{index,by_class,create,my_grades}.php
-│   ├── assignments/{admin_index,guru_index,murid_index,create,edit,show}.php
+│   ├── assignments/{guru_index,admin_index,murid_index,create,edit,show}.php
+│   ├── attendance/{index,create,fill,show,rekap,murid_index}.php
+│   ├── users/index.php
+│   ├── profile/show.php
 │   └── errors/404.php
-├── routes/
-│   └── web.php                       # Semua definisi route
-├── public/
-│   ├── index.php                     # Entry point aplikasi
-│   └── .htaccess                     # Clean URL rewriting
-└── database/
-    └── schema.sql                    # Database schema + seed data
+│
+├── tailwind.config.js
+├── package.json
+└── README.md
 ```
 
 ---
 
-## ⚙️ Cara Instalasi
+## Instalasi
 
-### 1. Persiapan
-- PHP >= 8.0
-- MySQL >= 5.7 / MariaDB >= 10.3
-- Apache dengan `mod_rewrite` aktif
-- XAMPP / Laragon / WAMP
-
-### 2. Setup Database
-
+### 1. Import Database
 ```bash
-# Import schema ke MySQL
 mysql -u root -p < database/schema.sql
 ```
 
-Atau buka **phpMyAdmin** → Import → pilih file `database/schema.sql`
-
-### 3. Konfigurasi
-
-Edit `app/config.php`:
-
+### 2. Edit `app/config.php`
 ```php
-define('APP_URL', 'http://localhost/akademik/public'); // Sesuaikan path
-
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'akademik_sd');
-define('DB_USER', 'root');
-define('DB_PASS', '');   // Password MySQL kamu
+define('APP_URL', 'http://localhost/akademik/public');
+define('DB_PASS', '');
 ```
 
-### 4. Pindahkan ke htdocs / www
-
-```
-htdocs/
-└── akademik/          ← Letakkan seluruh folder di sini
-    ├── app/
-    ├── public/
-    ├── views/
-    └── ...
+### 3. Buat Folder Uploads
+```bash
+mkdir -p public/uploads && chmod 755 public/uploads
 ```
 
-### 5. Buka di Browser
+### 4. Aktifkan mod_rewrite
+```apache
+<Directory "/path/to/akademik/public">
+    AllowOverride All
+</Directory>
+```
 
+### 5. Buka Browser
 ```
 http://localhost/akademik/public/
 ```
 
 ---
 
-## 🔑 Akun Demo
+## Akun Demo
 
-| Role      | Email                      | Password   |
-|-----------|----------------------------|------------|
-| Admin     | admin@sekolah.sch.id       | password   |
-| Guru      | budi@sekolah.sch.id        | password   |
-| Guru      | siti@sekolah.sch.id        | password   |
-| Murid     | ahmad@sekolah.sch.id       | password   |
-| Murid     | dewi@sekolah.sch.id        | password   |
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@sekolah.sch.id | password |
+| Guru | budi@sekolah.sch.id | password |
+| Murid | ahmad@sekolah.sch.id | password |
 
-> **Catatan:** Seed data menggunakan hash password dari Laravel (password: `password`).
-> Jika login gagal, generate ulang hash dengan:
-> ```php
-> echo password_hash('password', PASSWORD_DEFAULT);
-> ```
-> Dan update kolom `password` di tabel `users`.
+> Jika login gagal, generate ulang hash:
+> `echo password_hash('password', PASSWORD_DEFAULT);`
+> lalu update kolom `password` di tabel `users`.
 
 ---
 
-## 🏗️ Arsitektur
+## NPM Scripts
 
-### MVC Pattern
-```
-Request → public/index.php → Router → Controller → Model → View
-```
-
-### Role-Based Access Control
-```php
-Middleware::admin();          // Hanya admin
-Middleware::guru();           // Guru + Admin
-Middleware::murid();          // Hanya murid
-Middleware::role('guru','admin'); // Flexible
-```
-
-### Custom Router
-```php
-$router->get('/students', [StudentController::class, 'index']);
-$router->post('/students', [StudentController::class, 'store']);
-$router->get('/students/{id}', [StudentController::class, 'show']);
-```
-
-### Flash Messages
-```php
-Flash::set('success', 'Data berhasil disimpan!');
-Flash::set('error', 'Terjadi kesalahan.');
-```
-
-### Validator
-```php
-$v = Validator::make($_POST, [
-    'name'  => 'required|min:3',
-    'email' => 'required|email',
-    'nilai' => 'required|numeric|between:0,100',
-]);
-if ($v->fails()) { /* handle error */ }
+```bash
+npm install       # Install Tailwind
+npm run build     # Compile + minify (production)
+npm run watch     # Watch mode (development)
 ```
 
 ---
 
-## 🎯 Fitur Lengkap
+## Troubleshooting
 
-### 🛠️ Admin
-- ✅ Dashboard dengan statistik lengkap
-- ✅ CRUD Siswa (dengan data user terintegrasi)
-- ✅ CRUD Guru (dengan assign mata pelajaran & kelas)
-- ✅ CRUD Kelas (dengan wali kelas)
-- ✅ Monitoring nilai semua kelas
-- ✅ Lihat semua tugas
-
-### 👨‍🏫 Guru
-- ✅ Dashboard dengan ringkasan kelas & tugas
-- ✅ Lihat kelas yang diampu
-- ✅ Input nilai siswa (Harian/UTS/UAS) — batch per kelas
-- ✅ Otomatis hitung nilai akhir (30%+30%+40%)
-- ✅ Buat, edit, hapus tugas
-- ✅ Lihat & beri nilai submission siswa
-
-### 👦 Murid
-- ✅ Dashboard dengan progress lengkap
-- ✅ Lihat nilai semua mata pelajaran + grade (A/B/C/D)
-- ✅ Lihat daftar tugas + status pengumpulan
-- ✅ Submit tugas dengan file upload + catatan
-- ✅ Lihat nilai tugas dari guru
+| Masalah | Solusi |
+|---------|--------|
+| 404 semua halaman | Aktifkan `mod_rewrite` + `AllowOverride All` |
+| Login gagal | Generate ulang password hash (lihat di atas) |
+| CSS tidak muncul | Pastikan `APP_URL` sesuai URL di browser |
+| Upload gagal | Buat `public/uploads/` dengan chmod 755 |
+| Tabel attendance tidak ada | Pastikan seluruh `schema.sql` ter-import |
 
 ---
 
-## 📊 Database Schema
+## Fitur Tambahan (Update Core Academic)
 
-### Relasi Utama
-```
-users (1) ──── (1) teachers ──── (M) teacher_subjects (M) ──── (1) classes
-users (1) ──── (1) students (M) ──── (1) classes
-students (M) ──── (M) grades via (subject_id, teacher_id)
-assignments (1) ──── (M) submissions (M) ──── (1) students
-```
+### Rapor Digital
+- Admin & Guru: pilih kelas → daftar siswa + status rapor → preview per siswa
+- Input catatan wali kelas, predikat sikap/keterampilan, peringkat
+- Template cetak (`/reports/pdf/{id}`) — buka di tab baru, browser print ke PDF
+- Murid: akses rapor sendiri via `/my-rapor` atau menu sidebar
 
-### Formula Nilai Akhir
+### Kalender Akademik
+- Tampilan grid bulanan dengan event berwarna per tipe (Libur/Ujian/Event)
+- Admin: tambah/hapus event langsung dari kalender
+- Jadwal pelajaran per kelas (`/calendar/schedule/{classId}`)
+- Admin: tambah/hapus slot jadwal per hari
+- Widget "Event Mendatang" di semua dashboard
+
+### Jurnal Mengajar
+- Guru: catat materi, metode, media per pertemuan
+- Bisa dikaitkan ke sesi absensi yang sudah ada
+- Admin bisa monitor semua jurnal semua guru
+
+### Notifikasi In-App
+- Bell counter di topbar — polling otomatis setiap 60 detik
+- Triggered otomatis saat: tugas baru dibuat, nilai diinput, alpha di absensi, pengumuman diterbitkan
+- Halaman `/notifications` — semua dibaca setelah dibuka
+
+### Pengumuman Sekolah
+- Admin/Guru: buat pengumuman dengan target role (Semua/Guru/Murid)
+- Pin pengumuman penting — tampil paling atas dengan ikon 📌
+- Waktu tayang & kedaluwarsa bisa diatur
+- Notifikasi otomatis ke user yang dituju
+- Widget ringkasan di semua dashboard
+
+### Database Baru
 ```sql
-nilai_akhir = (nilai_harian × 0.3) + (nilai_uts × 0.3) + (nilai_uas × 0.4)
+report_notes          -- Catatan & predikat rapor per siswa per semester
+academic_calendar     -- Event kalender (libur, ujian, event)
+schedules             -- Jadwal pelajaran tetap per kelas
+teaching_journals     -- Jurnal mengajar guru
+notifications         -- Notifikasi in-app per user
+announcements         -- Pengumuman sekolah
 ```
-Dihitung otomatis oleh MySQL `GENERATED COLUMN`.
-
----
-
-## 🛠️ Troubleshooting
-
-**Q: Halaman blank / error 500?**
-- Cek `error_log` di `htdocs/`
-- Pastikan PHP PDO MySQL extension aktif
-- Cek konfigurasi DB di `app/config.php`
-
-**Q: Routing tidak bekerja (404)?**
-- Pastikan `mod_rewrite` aktif di Apache
-- Cek `.htaccess` ada di folder `public/`
-- Di XAMPP: aktifkan `AllowOverride All` di `httpd.conf`
-
-**Q: Upload file tidak bisa?**
-- Buat folder `public/uploads/` dengan permission write
-
-**Q: Login gagal meski password benar?**
-- Regenerate password hash:
-```php
-// Jalankan di PHP CLI atau file sementara
-echo password_hash('password', PASSWORD_DEFAULT);
-// Copy hasilnya ke database
-```
-
----
-
-## 💡 Pengembangan Lanjutan
-
-- [ ] Export nilai ke Excel/PDF
-- [ ] Sistem absensi siswa
-- [ ] Notifikasi deadline tugas
-- [ ] Kalender akademik
-- [ ] Rapor otomatis per semester
-- [ ] Multi tahun ajaran
-
----
-
-**Dibuat untuk tugas mata kuliah Pemrograman Web**
-*PHP Native | MVC Architecture | Role-Based Access Control | Tailwind CSS*

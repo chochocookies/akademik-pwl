@@ -7,7 +7,6 @@ $router->post('/login', [AuthController::class, 'login']);
 $router->get('/logout', [AuthController::class, 'logout']);
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
-$router->get('/',                [AuthController::class, 'dashboard']);
 $router->get('/dashboard',       [AuthController::class, 'dashboard']);
 $router->get('/dashboard/admin', [DashboardController::class, 'admin']);
 $router->get('/dashboard/guru',  [DashboardController::class, 'guru']);
@@ -86,3 +85,50 @@ $router->post('/profile/password',[ProfileController::class, 'changePassword']);
 $router->get('/users',              [UserController::class, 'index']);
 $router->post('/users/{id}/toggle', [UserController::class, 'toggleActive']);
 $router->post('/users/{id}/delete', [UserController::class, 'destroy']);
+
+// ── Murid self-rapor shortcut ─────────────────────────────────────────────────
+$router->get('/my-rapor', function() {
+    Middleware::murid();
+    $student = (new StudentModel())->findByUserId(Auth::id());
+    if (!$student) { Flash::set('error','Data siswa tidak ditemukan.'); redirect('/dashboard'); }
+    redirect('/reports/preview/' . $student['id'] . '?semester=' . SEMESTER);
+});
+
+// ── Reports ───────────────────────────────────────────────────────────────────
+$router->get('/reports',                       [ReportController::class, 'index']);
+$router->get('/reports/preview/{studentId}',   [ReportController::class, 'preview']);
+$router->get('/reports/pdf/{studentId}',       [ReportController::class, 'pdf']);
+$router->post('/reports/{studentId}/note',     [ReportController::class, 'saveNote']);
+$router->get('/reports/{classId}',             [ReportController::class, 'byClass']);
+
+// ── Calendar ──────────────────────────────────────────────────────────────────
+$router->get('/calendar',                      [CalendarController::class, 'index']);
+$router->get('/calendar/schedule/{classId}',   [CalendarController::class, 'schedule']);
+$router->post('/calendar/event',               [CalendarController::class, 'storeEvent']);
+$router->post('/calendar/event/{id}/delete',   [CalendarController::class, 'destroyEvent']);
+$router->post('/calendar/schedule',            [CalendarController::class, 'storeSchedule']);
+$router->post('/calendar/schedule/{id}/delete',[CalendarController::class, 'destroySchedule']);
+
+// ── Journals ──────────────────────────────────────────────────────────────────
+$router->get('/journals',              [JournalController::class, 'index']);
+$router->get('/journals/create',       [JournalController::class, 'create']);
+$router->post('/journals',             [JournalController::class, 'store']);
+$router->get('/journals/{id}',         [JournalController::class, 'show']);
+$router->get('/journals/{id}/edit',    [JournalController::class, 'edit']);
+$router->post('/journals/{id}/update', [JournalController::class, 'update']);
+$router->post('/journals/{id}/delete', [JournalController::class, 'destroy']);
+
+// ── Notifications ─────────────────────────────────────────────────────────────
+$router->get('/notifications',             [NotificationController::class, 'index']);
+$router->get('/notifications/count',       [NotificationController::class, 'count']);
+$router->post('/notifications/read-all',   [NotificationController::class, 'markAllRead']);
+$router->post('/notifications/{id}/read',  [NotificationController::class, 'markRead']);
+
+// ── Announcements ─────────────────────────────────────────────────────────────
+$router->get('/announcements',                    [AnnouncementController::class, 'index']);
+$router->get('/announcements/create',             [AnnouncementController::class, 'create']);
+$router->post('/announcements',                   [AnnouncementController::class, 'store']);
+$router->get('/announcements/{id}',               [AnnouncementController::class, 'show']);
+$router->get('/announcements/{id}/edit',          [AnnouncementController::class, 'edit']);
+$router->post('/announcements/{id}/update',       [AnnouncementController::class, 'update']);
+$router->post('/announcements/{id}/delete',       [AnnouncementController::class, 'destroy']);

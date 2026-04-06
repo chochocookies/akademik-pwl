@@ -136,4 +136,49 @@
     </div>
   </div>
 </div>
+
+  <!-- Announcements & Calendar -->
+  <?php if (!empty($announcements) || !empty($upcomingEvents)): ?>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <?php if (!empty($announcements)): ?>
+    <div class="card">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-display font-bold text-slate-900 dark:text-white text-base">Pengumuman</h3>
+        <a href="<?= url('/announcements') ?>" class="btn btn-secondary btn-sm">Semua</a>
+      </div>
+      <div class="space-y-2">
+        <?php foreach ($announcements as $ann): ?>
+        <a href="<?= url('/announcements/'.$ann['id']) ?>" class="block p-3 bg-slate-50 dark:bg-dark-card rounded-xl hover:bg-brand-50 dark:hover:bg-brand-900/15 transition-all group">
+          <p class="font-semibold text-slate-800 dark:text-slate-100 text-sm truncate"><?= e($ann['judul']) ?></p>
+          <p class="text-xs text-slate-400 dark:text-dark-text mt-0.5"><?= timeAgo($ann['published_at']) ?></p>
+        </a>
+        <?php endforeach; ?>
+      </div>
+    </div>
+    <?php endif; ?>
+    <?php if (!empty($upcomingEvents)): ?>
+    <div class="card">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-display font-bold text-slate-900 dark:text-white text-base">Event Mendatang</h3>
+        <a href="<?= url('/calendar') ?>" class="btn btn-secondary btn-sm">Kalender</a>
+      </div>
+      <div class="space-y-2">
+        <?php $evC=['libur'=>'text-red-600','ujian'=>'text-amber-600','event'=>'text-brand-600','lainnya'=>'text-slate-500'];
+        foreach ($upcomingEvents as $ev): $d=(int)ceil((strtotime($ev['tanggal_mulai'])-time())/86400); ?>
+        <div class="flex items-center gap-3 p-2.5 bg-slate-50 dark:bg-dark-card rounded-xl">
+          <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-dark-muted flex items-center justify-center shrink-0 text-center leading-none">
+            <span class="text-xs font-bold <?= $evC[$ev['tipe']]??'text-slate-500' ?>"><?= date('d',strtotime($ev['tanggal_mulai'])) ?></span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate"><?= e($ev['judul']) ?></p>
+            <p class="text-xs text-slate-400 dark:text-dark-text"><?= $d<=0?'Berlangsung':"$d hari lagi" ?></p>
+          </div>
+        </div>
+        <?php endforeach; ?>
+      </div>
+    </div>
+    <?php endif; ?>
+  </div>
+  <?php endif; ?>
+
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

@@ -220,3 +220,126 @@ CREATE TABLE IF NOT EXISTS attendances (
     FOREIGN KEY (session_id) REFERENCES attendance_sessions(id) ON DELETE CASCADE,
     FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
 );
+
+-- =============================================
+-- RAPOR DIGITAL
+-- =============================================
+CREATE TABLE IF NOT EXISTS report_notes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    semester ENUM('1','2') NOT NULL,
+    tahun_ajaran VARCHAR(10) NOT NULL,
+    catatan_wali TEXT,
+    catatan_kepala TEXT,
+    predikat_sikap ENUM('A','B','C','D') DEFAULT 'B',
+    predikat_keterampilan ENUM('A','B','C','D') DEFAULT 'B',
+    ranking INT DEFAULT NULL,
+    created_by INT NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_note (student_id, semester, tahun_ajaran),
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
+-- =============================================
+-- KALENDER AKADEMIK
+-- =============================================
+CREATE TABLE IF NOT EXISTS academic_calendar (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tanggal_mulai DATE NOT NULL,
+    tanggal_selesai DATE NOT NULL,
+    judul VARCHAR(200) NOT NULL,
+    tipe ENUM('libur','ujian','event','lainnya') NOT NULL DEFAULT 'event',
+    deskripsi TEXT,
+    warna VARCHAR(7) DEFAULT '#3B82F6',
+    created_by INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS schedules (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    class_id INT NOT NULL,
+    teacher_id INT NOT NULL,
+    subject_id INT NOT NULL,
+    hari ENUM('senin','selasa','rabu','kamis','jumat','sabtu') NOT NULL,
+    jam_mulai TIME NOT NULL,
+    jam_selesai TIME NOT NULL,
+    ruangan VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_slot (class_id, hari, jam_mulai),
+    FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE,
+    FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE CASCADE,
+    FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE
+);
+
+-- Seed kalender
+INSERT INTO academic_calendar (tanggal_mulai, tanggal_selesai, judul, tipe, warna, created_by) VALUES
+('2024-08-19', '2024-08-19', 'Hari Pertama Sekolah', 'event', '#10B981', 1),
+('2024-10-14', '2024-10-19', 'Ujian Tengah Semester 1', 'ujian', '#F59E0B', 1),
+('2024-12-02', '2024-12-14', 'Ujian Akhir Semester 1', 'ujian', '#EF4444', 1),
+('2024-12-25', '2024-12-25', 'Hari Natal', 'libur', '#6366F1', 1),
+('2025-01-01', '2025-01-01', 'Tahun Baru 2025', 'libur', '#6366F1', 1),
+('2025-01-06', '2025-01-06', 'Awal Semester 2', 'event', '#10B981', 1);
+
+-- =============================================
+-- JURNAL MENGAJAR
+-- =============================================
+CREATE TABLE IF NOT EXISTS teaching_journals (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    attendance_session_id INT DEFAULT NULL,
+    teacher_id INT NOT NULL,
+    class_id INT NOT NULL,
+    subject_id INT NOT NULL,
+    tanggal DATE NOT NULL,
+    materi_pokok VARCHAR(200) NOT NULL,
+    materi_detail TEXT,
+    metode VARCHAR(200),
+    media VARCHAR(200),
+    catatan TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (attendance_session_id) REFERENCES attendance_sessions(id) ON DELETE SET NULL,
+    FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE CASCADE,
+    FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE,
+    FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE
+);
+
+-- =============================================
+-- NOTIFIKASI IN-APP
+-- =============================================
+CREATE TABLE IF NOT EXISTS notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    tipe ENUM('tugas','nilai','absensi','pengumuman','lainnya') NOT NULL DEFAULT 'lainnya',
+    judul VARCHAR(200) NOT NULL,
+    pesan TEXT,
+    url VARCHAR(500),
+    is_read TINYINT(1) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_user_read (user_id, is_read),
+    INDEX idx_created (created_at)
+);
+
+-- =============================================
+-- PENGUMUMAN SEKOLAH
+-- =============================================
+CREATE TABLE IF NOT EXISTS announcements (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    judul VARCHAR(200) NOT NULL,
+    konten TEXT NOT NULL,
+    target_role ENUM('all','guru','murid') NOT NULL DEFAULT 'all',
+    is_pinned TINYINT(1) DEFAULT 0,
+    published_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    expired_at DATETIME DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Seed pengumuman
+INSERT INTO announcements (user_id, judul, konten, target_role, is_pinned) VALUES
+(1, 'Selamat Datang di SiAkad SD', 'Sistem Informasi Akademik Sekolah Dasar telah resmi diluncurkan. Semua guru dan siswa dapat menggunakan sistem ini untuk mengelola kegiatan akademik.', 'all', 1),
+(1, 'Jadwal Ujian Tengah Semester', 'UTS Semester 1 akan dilaksanakan pada 14-19 Oktober 2024. Harap semua siswa mempersiapkan diri dengan baik.', 'murid', 0);

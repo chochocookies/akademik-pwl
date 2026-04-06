@@ -140,6 +140,59 @@
     </div>
   </div>
 </div>
+  <!-- Announcements + Calendar row -->
+  <?php if (!empty($announcements) || !empty($upcomingEvents)): ?>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <?php if (!empty($announcements)): ?>
+    <div class="card">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-display font-bold text-slate-900 dark:text-white text-lg">Pengumuman Terbaru</h3>
+        <a href="<?= url('/announcements') ?>" class="btn btn-secondary btn-sm">Lihat Semua</a>
+      </div>
+      <div class="space-y-3">
+        <?php foreach ($announcements as $ann): ?>
+        <a href="<?= url('/announcements/'.$ann['id']) ?>" class="block p-3 bg-slate-50 dark:bg-dark-card rounded-xl hover:bg-brand-50 dark:hover:bg-brand-900/15 border border-transparent hover:border-brand-100 dark:hover:border-brand-900/40 transition-all group">
+          <div class="flex items-start gap-2.5">
+            <?php if ($ann['is_pinned']): ?><i data-lucide="pin" class="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5"></i><?php else: ?><i data-lucide="megaphone" class="w-3.5 h-3.5 text-brand-500 shrink-0 mt-0.5"></i><?php endif; ?>
+            <div class="flex-1 min-w-0">
+              <p class="font-semibold text-slate-800 dark:text-slate-100 text-sm truncate group-hover:text-brand-700 dark:group-hover:text-brand-400 transition-colors"><?= e($ann['judul']) ?></p>
+              <p class="text-xs text-slate-400 dark:text-dark-text mt-0.5"><?= timeAgo($ann['published_at']) ?></p>
+            </div>
+          </div>
+        </a>
+        <?php endforeach; ?>
+      </div>
+    </div>
+    <?php endif; ?>
+    <?php if (!empty($upcomingEvents)): ?>
+    <div class="card">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-display font-bold text-slate-900 dark:text-white text-lg">Event Mendatang</h3>
+        <a href="<?= url('/calendar') ?>" class="btn btn-secondary btn-sm">Kalender</a>
+      </div>
+      <div class="space-y-3">
+        <?php
+        $evColors = ['libur'=>'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400','ujian'=>'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400','event'=>'bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-400','lainnya'=>'bg-slate-100 dark:bg-dark-muted text-slate-600 dark:text-slate-400'];
+        foreach ($upcomingEvents as $ev):
+          $daysAway = (int)ceil((strtotime($ev['tanggal_mulai'])-time())/86400);
+        ?>
+        <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-dark-card rounded-xl">
+          <div class="w-10 h-10 rounded-xl <?= $evColors[$ev['tipe']]??$evColors['lainnya'] ?> flex flex-col items-center justify-center shrink-0 text-center leading-none">
+            <span class="text-xs font-bold"><?= date('d',strtotime($ev['tanggal_mulai'])) ?></span>
+            <span class="text-2xs"><?= date('M',strtotime($ev['tanggal_mulai'])) ?></span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-semibold text-slate-800 dark:text-slate-100 text-sm truncate"><?= e($ev['judul']) ?></p>
+            <p class="text-xs text-slate-400 dark:text-dark-text"><?= $daysAway <= 0 ? 'Sedang berlangsung' : "dalam $daysAway hari" ?></p>
+          </div>
+        </div>
+        <?php endforeach; ?>
+      </div>
+    </div>
+    <?php endif; ?>
+  </div>
+  <?php endif; ?>
+
   <!-- Recent Absensi Sessions -->
   <?php if (!empty($recentSessions)): ?>
   <div class="card">
