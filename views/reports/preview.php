@@ -3,8 +3,17 @@ $title = 'Preview Rapor — '.$data['student']['name'];
 require_once __DIR__ . '/../layouts/header.php';
 $student = $data['student'];
 $grades  = $data['grades'];
-$note    = $data['note'];
 $abs     = $data['absStats'];
+
+// Ensure $note is always a safe array (never null)
+$note = is_array($data['note']) ? $data['note'] : [];
+$note = array_merge([
+    'catatan_wali'          => null,
+    'catatan_kepala'        => null,
+    'predikat_sikap'        => 'B',
+    'predikat_keterampilan' => 'B',
+    'ranking'               => null,
+], $note);
 ?>
 <div class="max-w-4xl mx-auto space-y-5">
   <div class="flex flex-wrap items-center gap-3">

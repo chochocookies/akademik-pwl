@@ -66,7 +66,6 @@
           <i data-lucide="star" class="w-3.5 h-3.5"></i> Input Nilai
         </a>
       </div>
-
       <div class="space-y-3">
         <?php foreach ($classes as $c): ?>
         <div class="group flex items-center gap-4 p-4 bg-slate-50 dark:bg-dark-card rounded-2xl hover:bg-brand-50 dark:hover:bg-brand-900/15 transition-all duration-200 border border-transparent hover:border-brand-100 dark:hover:border-brand-900/50">
@@ -83,7 +82,6 @@
           </div>
         </div>
         <?php endforeach; ?>
-
         <?php if (empty($classes)): ?>
         <div class="empty-state py-8">
           <i data-lucide="inbox" class="empty-icon"></i>
@@ -105,7 +103,6 @@
           <i data-lucide="plus" class="w-3.5 h-3.5"></i> Buat
         </a>
       </div>
-
       <div class="space-y-3">
         <?php foreach ($assignments as $a):
           $isPast = isDeadlinePassed($a['deadline']);
@@ -123,7 +120,6 @@
           </div>
         </div>
         <?php endforeach; ?>
-
         <?php if (empty($assignments)): ?>
         <div class="empty-state py-8">
           <i data-lucide="clipboard-list" class="empty-icon"></i>
@@ -135,91 +131,49 @@
     </div>
   </div>
 
-  <!-- Pengumuman + Calendar -->
-  <?php if (!empty($announcements) || !empty($upcomingEvents)): ?>
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
+  <!-- Announcements & Calendar -->
+  <?php if (!empty($announcements) || !empty($upcomingEvents)): ?>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <?php if (!empty($announcements)): ?>
     <div class="card">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="font-display font-bold text-slate-900 dark:text-white text-lg">Pengumuman Terbaru</h3>
-        <a href="<?= url('/announcements') ?>" class="btn btn-secondary btn-sm">Lihat Semua</a>
+        <h3 class="font-display font-bold text-slate-900 dark:text-white text-base">Pengumuman</h3>
+        <a href="<?= url('/announcements') ?>" class="btn btn-secondary btn-sm">Semua</a>
       </div>
-
-      <div class="space-y-3">
+      <div class="space-y-2">
         <?php foreach ($announcements as $ann): ?>
-        <a href="<?= url('/announcements/'.$ann['id']) ?>"
-           class="block p-3 bg-slate-50 dark:bg-dark-card rounded-xl hover:bg-brand-50 dark:hover:bg-brand-900/15 border border-transparent hover:border-brand-100 dark:hover:border-brand-900/40 transition-all group">
-
-          <div class="flex items-start gap-2.5">
-            <?php if (!empty($ann['is_pinned'])): ?>
-              <i data-lucide="pin" class="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5"></i>
-            <?php else: ?>
-              <i data-lucide="megaphone" class="w-3.5 h-3.5 text-brand-500 shrink-0 mt-0.5"></i>
-            <?php endif; ?>
-
-            <div class="flex-1 min-w-0">
-              <p class="font-semibold text-slate-800 dark:text-slate-100 text-sm truncate group-hover:text-brand-700 dark:group-hover:text-brand-400 transition-colors">
-                <?= e($ann['judul']) ?>
-              </p>
-              <p class="text-xs text-slate-400 dark:text-dark-text mt-0.5">
-                <?= timeAgo($ann['published_at']) ?>
-              </p>
-            </div>
-          </div>
-
+        <a href="<?= url('/announcements/'.$ann['id']) ?>" class="block p-3 bg-slate-50 dark:bg-dark-card rounded-xl hover:bg-brand-50 dark:hover:bg-brand-900/15 transition-all group">
+          <p class="font-semibold text-slate-800 dark:text-slate-100 text-sm truncate"><?= e($ann['judul']) ?></p>
+          <p class="text-xs text-slate-400 dark:text-dark-text mt-0.5"><?= timeAgo($ann['published_at']) ?></p>
         </a>
         <?php endforeach; ?>
       </div>
     </div>
     <?php endif; ?>
-
     <?php if (!empty($upcomingEvents)): ?>
     <div class="card">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="font-display font-bold text-slate-900 dark:text-white text-lg">Event Mendatang</h3>
+        <h3 class="font-display font-bold text-slate-900 dark:text-white text-base">Event Mendatang</h3>
         <a href="<?= url('/calendar') ?>" class="btn btn-secondary btn-sm">Kalender</a>
       </div>
-
-      <div class="space-y-3">
-        <?php
-        $evColors = [
-          'libur'=>'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
-          'ujian'=>'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
-          'event'=>'bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-400',
-          'lainnya'=>'bg-slate-100 dark:bg-dark-muted text-slate-600 dark:text-slate-400'
-        ];
-
-        foreach ($upcomingEvents as $ev):
-          $eventTime = strtotime($ev['tanggal_mulai']);
-          $daysAway = (int)ceil(($eventTime - time()) / 86400);
-          $type = $ev['tipe'] ?? 'lainnya';
-        ?>
-        <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-dark-card rounded-xl">
-
-          <div class="w-12 h-12 rounded-xl <?= $evColors[$type] ?? $evColors['lainnya'] ?> flex flex-col items-center justify-center shrink-0 leading-none">
-            <span class="text-sm font-bold"><?= date('d', $eventTime) ?></span>
-            <span class="text-2xs"><?= date('M', $eventTime) ?></span>
+      <div class="space-y-2">
+        <?php $evC=['libur'=>'text-red-600','ujian'=>'text-amber-600','event'=>'text-brand-600','lainnya'=>'text-slate-500'];
+        foreach ($upcomingEvents as $ev): $d=(int)ceil((strtotime($ev['tanggal_mulai'])-time())/86400); ?>
+        <div class="flex items-center gap-3 p-2.5 bg-slate-50 dark:bg-dark-card rounded-xl">
+          <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-dark-muted flex items-center justify-center shrink-0 text-center leading-none">
+            <span class="text-xs font-bold <?= $evC[$ev['tipe']]??'text-slate-500' ?>"><?= date('d',strtotime($ev['tanggal_mulai'])) ?></span>
           </div>
-
           <div class="flex-1 min-w-0">
-            <p class="font-semibold text-slate-800 dark:text-slate-100 text-sm truncate">
-              <?= e($ev['judul']) ?>
-            </p>
-            <p class="text-xs text-slate-400 dark:text-dark-text">
-              <?= $daysAway <= 0 ? 'Sedang berlangsung' : "dalam $daysAway hari" ?>
-            </p>
+            <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate"><?= e($ev['judul']) ?></p>
+            <p class="text-xs text-slate-400 dark:text-dark-text"><?= $d<=0?'Berlangsung':"$d hari lagi" ?></p>
           </div>
-
         </div>
         <?php endforeach; ?>
       </div>
     </div>
     <?php endif; ?>
-
   </div>
   <?php endif; ?>
-
 </div>
-
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

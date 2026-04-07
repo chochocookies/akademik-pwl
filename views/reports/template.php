@@ -2,8 +2,17 @@
 // Print-only rapor template — no layout wrapper
 $student = $data['student'];
 $grades  = $data['grades'];
-$note    = $data['note'];
 $abs     = $data['absStats'];
+
+// Ensure $note is always a safe array (never null)
+$note = is_array($data['note']) ? $data['note'] : [];
+$note = array_merge([
+    'catatan_wali'          => null,
+    'catatan_kepala'        => null,
+    'predikat_sikap'        => 'B',
+    'predikat_keterampilan' => 'B',
+    'ranking'               => null,
+], $note);
 ?>
 <!DOCTYPE html>
 <html lang="id">

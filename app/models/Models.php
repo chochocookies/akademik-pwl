@@ -45,10 +45,13 @@ class StudentModel extends Model {
     public function findWithDetails(int $id): ?array {
         return $this->db->fetch("
             SELECT s.*, u.name, u.email, u.is_active,
-                   c.nama_kelas, c.tingkat
+                   c.nama_kelas, c.tingkat,
+                   wu.name as wali_kelas_name, wt.nip as wali_kelas_nip
             FROM students s
             JOIN users u ON s.user_id = u.id
             LEFT JOIN classes c ON s.class_id = c.id
+            LEFT JOIN users wu ON c.wali_kelas_id = wu.id
+            LEFT JOIN teachers wt ON wu.id = wt.user_id
             WHERE s.id = ?
         ", [$id]);
     }
@@ -496,10 +499,19 @@ class ReportNoteModel extends Model {
     }
 
     public function getDetailForRapor(int $studentId, string $semester, string $tahunAjaran): array {
-        $grades = (new GradeModel())->getStudentGrades($studentId, $semester, $tahunAjaran);
-        $note   = $this->findByStudent($studentId, $semester, $tahunAjaran);
+        $grades  = (new GradeModel())->getStudentGrades($studentId, $semester, $tahunAjaran);
         $student = (new StudentModel())->findWithDetails($studentId);
         $absStats = (new AttendanceSessionModel())->getOverallStats($studentId);
+
+        // Always return an array with defaults — never null
+        $noteRaw = $this->findByStudent($studentId, $semester, $tahunAjaran);
+        $note = [
+            'catatan_wali'           => $noteRaw['catatan_wali']           ?? null,
+            'catatan_kepala'         => $noteRaw['catatan_kepala']         ?? null,
+            'predikat_sikap'         => $noteRaw['predikat_sikap']         ?? 'B',
+            'predikat_keterampilan'  => $noteRaw['predikat_keterampilan']  ?? 'B',
+            'ranking'                => $noteRaw['ranking']                ?? null,
+        ];
         return compact('grades','note','student','absStats');
     }
 }
