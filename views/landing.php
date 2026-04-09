@@ -8,6 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <!-- AOS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
   <style>
     *{-webkit-font-smoothing:antialiased;}
     body{font-family:'DM Sans',system-ui,sans-serif;}
@@ -42,7 +45,7 @@
         <i data-lucide="graduation-cap" class="w-5 h-5 text-white"></i>
       </div>
       <div>
-        <span class="font-display font-bold text-slate-900 dark:text-white text-[15px] leading-none">SiAkad SD</span>
+        <span class="font-display font-bold text-slate-900 dark:text-brand-300 text-[15px] leading-none">SiAkad SD</span>
         <p class="text-2xs text-slate-400 dark:text-slate-600 leading-none mt-0.5">Sistem Akademik</p>
       </div>
     </a>
@@ -80,7 +83,7 @@
   <div class="relative max-w-6xl mx-auto px-6 py-24 md:py-36">
     <div class="max-w-3xl">
       <!-- Badge -->
-      <div class="animate-1 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-500/15 border border-brand-500/30 text-brand-300 text-xs font-semibold mb-6">
+      <div class="animate-1 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-500/15 border border-brand-500/30 text-emerald-300 text-xs font-semibold mb-6">
         <span class="w-1.5 h-1.5 rounded-full bg-brand-400 animate-pulse"></span>
         Sistem Informasi Akademik Sekolah Dasar
       </div>
@@ -126,19 +129,19 @@
   </div>
 
   <!-- Stats bar -->
-  <div class="relative border-t border-white/5 bg-white/3">
+  <div class="hidden md:block relative border-t border-white/5 bg-white/3">
     <div class="max-w-6xl mx-auto px-6 py-8">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
         <?php
         $stats = [
-          ['11','Controller','Modul Sistem'],
+          ['15','Controller','Modul Sistem'],
           ['76','File PHP','Kode Sumber'],
           ['5+','Fitur','Terintegrasi'],
           ['3','Role','Admin · Guru · Murid'],
         ];
         foreach ($stats as $i => [$num,$label,$sub]):
         ?>
-        <div class="stat-item text-center" style="animation-delay:<?= $i*100+600 ?>ms">
+        <div class="stat-item text-center" data-aos="fade-up" data-aos-delay="<?= $i * 100 ?>" data-aos-once="true" style="animation-delay:<?= $i*100+600 ?>ms">
           <div class="font-display font-bold text-3xl text-white"><?= $num ?></div>
           <div class="text-slate-300 text-sm font-semibold mt-0.5"><?= $label ?></div>
           <div class="text-slate-600 text-xs mt-0.5"><?= $sub ?></div>
@@ -152,7 +155,7 @@
 <!-- ── FITUR ── -->
 <section id="fitur" class="py-20 bg-white dark:bg-[#161B27]">
   <div class="max-w-6xl mx-auto px-6">
-    <div class="text-center mb-14">
+    <div class="text-center mb-14" data-aos="fade-up" data-aos-once="true">
       <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-xs font-semibold mb-4">
         <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
         Fitur Lengkap
@@ -176,7 +179,10 @@
       ];
       foreach ($features as $i => [$icon,$title,$desc,$col,$bg]):
       ?>
-      <div class="feature-card p-6 bg-slate-50 dark:bg-[#1E2433] rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-brand-200 dark:hover:border-brand-900/50 hover:shadow-lg" style="animation:fadeUp .5s <?= $i*80 ?>ms both">
+      <div class="feature-card p-6 bg-slate-50 dark:bg-[#1E2433] rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-brand-200 dark:hover:border-brand-900/50 hover:shadow-lg"
+           data-aos="fade-up"
+           data-aos-delay="<?= $i * 80 ?>"
+           data-aos-once="true">
         <div class="w-11 h-11 rounded-2xl <?= $bg ?> flex items-center justify-center mb-4">
           <i data-lucide="<?= $icon ?>" class="w-5 h-5 <?= $col ?>"></i>
         </div>
@@ -191,7 +197,7 @@
 <!-- ── ROLE ── -->
 <section id="role" class="py-20 bg-slate-50 dark:bg-[#0D1117]">
   <div class="max-w-6xl mx-auto px-6">
-    <div class="text-center mb-14">
+    <div class="text-center mb-14" data-aos="fade-up" data-aos-once="true">
       <h2 class="font-display font-bold text-3xl md:text-4xl text-slate-900 dark:text-white">Satu sistem, tiga peran</h2>
       <p class="text-slate-500 dark:text-slate-400 mt-4">Setiap pengguna mendapatkan tampilan dan akses yang sesuai dengan perannya.</p>
     </div>
@@ -201,16 +207,19 @@
         ['🛠️','Administrator','Kelola semua data. Monitor nilai, absensi, rapor seluruh sekolah. Manajemen user dan mata pelajaran.','from-violet-600 to-indigo-700',[
           'CRUD Siswa, Guru, Kelas','Manajemen Mata Pelajaran','Monitor Semua Nilai & Absensi','Rapor Digital Semua Kelas','Kalender & Pengumuman','Manajemen User & Akses',
         ]],
-        ['👨‍🏫','Guru','Input nilai, absensi, jurnal mengajar. Buat tugas dan nilai submission. Kelola kelas yang diampu.','from-brand-600 to-cyan-700',[
+        ['👨‍🏫','Guru','Input nilai, absensi, jurnal mengajar. Buat tugas, nilai submission, forum diskusi. Kelola kelas yang diampu.','from-brand-600 to-cyan-700',[
           'Input Nilai Batch (Harian/UTS/UAS)','Buat & Nilai Tugas Siswa','Isi Absensi + Jurnal Mengajar','Preview Rapor Kelas','Buat Pengumuman','Jadwal & Kalender',
         ]],
         ['👦','Murid','Lihat nilai, tugas, dan rapor. Submit tugas dengan upload file. Pantau kehadiran dan pengumuman.','from-emerald-600 to-teal-700',[
           'Rekap Nilai + Grade A/B/C/D','Submit Tugas + Upload File','Lihat Rapor Diri Sendiri','Rekap Absensi per Mapel','Notifikasi Tugas & Nilai','Pengumuman & Kalender',
         ]],
       ];
-      foreach ($roles as [$emoji,$name,$desc,$grad,$items]):
+      foreach ($roles as $idx => [$emoji,$name,$desc,$grad,$items]):
       ?>
-      <div class="bg-white dark:bg-[#1E2433] rounded-3xl border border-slate-100 dark:border-slate-800 overflow-hidden hover:shadow-xl transition-shadow">
+      <div class="bg-white dark:bg-[#1E2433] rounded-3xl border border-slate-100 dark:border-slate-800 overflow-hidden hover:shadow-xl transition-shadow"
+           data-aos="fade-up"
+           data-aos-delay="<?= $idx * 150 ?>"
+           data-aos-once="true">
         <div class="bg-gradient-to-br <?= $grad ?> p-6 text-white">
           <div class="text-4xl mb-3"><?= $emoji ?></div>
           <h3 class="font-display font-bold text-xl"><?= $name ?></h3>
@@ -237,21 +246,26 @@
   <div class="blob w-96 h-96 bg-brand-500/20 top-0 right-0" style="animation-delay:-2s"></div>
   <div class="blob w-64 h-64 bg-violet-500/15 bottom-0 left-0" style="animation-delay:-4s"></div>
   <div class="relative max-w-2xl mx-auto px-6 text-center">
-    <h2 class="font-display font-bold text-3xl md:text-4xl text-white mb-4">Siap memulai?</h2>
-    <p class="text-brand-200 text-lg mb-10">Masuk ke sistem dan kelola akademik sekolah dasar Anda dengan lebih mudah.</p>
-    <div class="flex flex-wrap justify-center gap-4">
+    <h2 class="font-display font-bold text-3xl md:text-4xl text-white mb-4"
+        data-aos="fade-up" data-aos-delay="0" data-aos-once="true">Siap memulai?</h2>
+    <p class="text-brand-200 text-lg mb-10"
+       data-aos="fade-up" data-aos-delay="100" data-aos-once="true">Masuk ke sistem dan kelola akademik sekolah dasar Anda dengan lebih mudah.</p>
+    <div class="flex flex-wrap justify-center gap-4"
+         data-aos="fade-up" data-aos-delay="200" data-aos-once="true">
       <a href="<?= url('/login') ?>" class="btn-hero inline-flex items-center gap-2.5 px-8 py-4 bg-white text-brand-700 font-bold rounded-2xl shadow-xl hover:shadow-2xl text-base">
         <i data-lucide="log-in" class="w-5 h-5"></i>
         Masuk Sekarang
       </a>
     </div>
-    <p class="text-brand-400 text-sm mt-6">Akun demo tersedia · password: <code class="bg-white/10 px-1.5 py-0.5 rounded font-mono">password</code></p>
+    <p class="text-brand-400 text-sm mt-6"
+       data-aos="fade-up" data-aos-delay="300" data-aos-once="true">Akun demo tersedia · password: <code class="bg-white/10 px-1.5 py-0.5 rounded font-mono">password</code></p>
   </div>
 </section>
 
 <!-- ── FOOTER ── -->
 <footer class="bg-slate-900 border-t border-slate-800 py-8">
-  <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+  <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4"
+       data-aos="fade-up" data-aos-once="true">
     <div class="flex items-center gap-3">
       <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center">
         <i data-lucide="graduation-cap" class="w-4 h-4 text-white"></i>
@@ -268,6 +282,14 @@
 
 <script>
 lucide.createIcons();
+
+// AOS Init
+AOS.init({
+  duration: 700,
+  easing: 'ease-out-cubic',
+  once: true,
+  offset: 60,
+});
 
 // Dark mode
 const htmlEl = document.getElementById('html-root');
